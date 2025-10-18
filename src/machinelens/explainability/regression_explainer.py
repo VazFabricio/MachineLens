@@ -1,5 +1,6 @@
 from .base_explainer import BaseExplainer
 
+
 class RegressionExplainer(BaseExplainer):
     def feature_importance(self):
         pass
