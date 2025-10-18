@@ -33,10 +33,6 @@ jobs:
     - name: Lint with flake8
       run: flake8 src tests
 
-    - name: Install type stubs
-      run: |
-        pip install pandas-stubs numpy-stubs scikit-learn-stubs
-
     - name: Run mypy
       run: mypy src --ignore-missing-imports
 
