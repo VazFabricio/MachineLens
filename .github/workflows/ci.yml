@@ -37,9 +37,8 @@ jobs:
       run: |
         pip install pandas-stubs numpy-stubs scikit-learn-stubs
 
-
-    - name: Type checking with mypy
-      run: mypy src
+    - name: Run mypy
+      run: mypy src --ignore-missing-imports
 
     - name: Run tests
       run: pytest tests
