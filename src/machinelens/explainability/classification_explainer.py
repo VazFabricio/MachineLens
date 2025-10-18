@@ -2,14 +2,14 @@ from .base_explainer import BaseExplainer
 
 
 class ClassificationExplainer(BaseExplainer):
-    def feature_importance(self):
+    def feature_importance(self) -> None:
         pass
 
-    def partial_dependence(self):
+    def partial_dependence(self) -> None:
         pass
 
-    def sensitivity_analysis(self):
+    def sensitivity_analysis(self) -> None:
         pass
 
-    def fairness_bias(self):
+    def fairness_bias(self) -> None:
         pass
