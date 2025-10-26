@@ -31,6 +31,15 @@ check_untyped_defs = true
 disallow_untyped_defs = false  # desativa exigência estrita de tipos para facilitar
 ignore_missing_imports = true   # ignora imports de bibliotecas sem stubs
 
+[tool.pydocstyle]
+convention = "google"
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203"]
+
+[tool.darglint]
+docstring_style = "google"
 
 [dependency-groups]
 dev = [
@@ -40,4 +49,7 @@ dev = [
     "mypy>=1.18.2",
     "pre-commit>=4.3.0",
     "pytest>=8.4.2",
+    "pydocstyle>=6.1.1",
+    "flake8-docstrings>=1.6.0",
+    "darglint>=1.7.0",
 ]

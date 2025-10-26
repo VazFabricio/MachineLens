@@ -24,6 +24,19 @@ jobs:
         pip install -e .
         pip install black isort flake8 mypy pytest pre-commit
 
+    - name: Install docstring tools
+      run: |
+        pip install pydocstyle darglint flake8-docstrings
+
+    - name: Check docstrings with pydocstyle (Google)
+      run: |
+        pydocstyle src --convention=google
+
+    - name: Check docstrings match signature with darglint
+      run: |
+        # darglint falha se houver mismatch; opcional: rode só em CI
+        darglint src || (echo "darglint failed" && exit 1)
+
     - name: Lint with black
       run: black --check src tests
 
