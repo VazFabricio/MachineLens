@@ -23,4 +23,3 @@ repos:
       - id: mypy
         args: [--ignore-missing-imports]
         language_version: python3.13
-

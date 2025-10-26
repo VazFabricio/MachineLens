@@ -1,6 +1,7 @@
 class BaseExplainer:
-    def __init__(self, model_interface: str) -> None:
-        self.model = model_interface
+    def __init__(self, model_interface) -> None:
+        self.model_interface = model_interface
+        self.model = getattr(model_interface, "model", None)
 
     def feature_importance(self) -> None:
         raise NotImplementedError
