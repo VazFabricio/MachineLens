@@ -1,12 +1,29 @@
+"""Report builder module for MachineLens."""
+
+
 class ReportBuilder:
-    def __init__(self, explainer: str) -> None:
-        self.explainer = explainer
+    """Handles construction of model explainability and performance reports."""
 
-    def generate(self) -> None:
+    def __init__(self) -> None:
+        """Initialize the ReportBuilder."""
         pass
 
-    def show(self) -> None:
+    def add_section(self, name: str) -> None:
+        """Add a section to the report.
+
+        Args:
+            name (str): The title of the section to add.
+        """
         pass
 
-    def save(self, path: str) -> None:
+    def build(self) -> None:
+        """Compile and finalize the report."""
+        pass
+
+    def export(self, path: str) -> None:
+        """Export the report to the specified path.
+
+        Args:
+            path (str): The file path where the report will be saved.
+        """
         pass

@@ -1,3 +1,5 @@
+"""Core model interface module for the MachineLens library."""
+
 from __future__ import annotations
 
 from typing import Any, Optional, Union
@@ -10,6 +12,8 @@ ArrayLike = Union[np.ndarray, pd.Series]
 
 
 class ModelInterface:
+    """Encapsulate model data and provide validation utilities."""
+
     def __init__(
         self,
         model: Any,
@@ -20,6 +24,18 @@ class ModelInterface:
         y_pred: Optional[ArrayLike],
         problem_type: str = "regression",
     ) -> None:
+        """Initialize the ModelInterface with data and model references.
+
+        Args:
+            model (Any): The fitted machine learning model object.
+            X_train (Optional[PandasLike]): Training features.
+            X_test (Optional[PandasLike]): Test features.
+            y_train (Optional[ArrayLike]): Training target values.
+            y_test (Optional[ArrayLike]): Test target values.
+            y_pred (Optional[ArrayLike]): Model's predictions on the test set.
+            problem_type (str): The type of problem, e.g., "regression" or
+                "classification". Defaults to "regression".
+        """
         self.model = model
         self.X_train = X_train
         self.X_test = X_test
@@ -31,12 +47,17 @@ class ModelInterface:
         self._validate_inputs()
 
     def _validate_inputs(self) -> None:
-        """
-        Basic validation of shapes and types to catch user errors early.
-        - Ensures X/* are pandas DataFrames (recommended) or numpy arrays
-        - Ensures lengths of X_test and y_test and y_pred match when present
-        """
+        """Validate shapes and types of inputs to catch user errors early.
 
+        Ensures that:
+            - ``X_train`` and ``X_test`` are pandas DataFrames, Series, or numpy arrays.
+            - The lengths of ``X_test`` and ``y_test`` match.
+            - The lengths of ``X_test`` and ``y_pred`` match when both are provided.
+
+        Raises:
+            TypeError: If ``X_train`` or ``X_test`` is not a pandas DataFrame, Series, or numpy array.
+            ValueError: If ``X_test`` and ``y_test`` or ``y_pred`` have inconsistent lengths.
+        """
         for name, obj in (
             ("X_train", self.X_train),
             ("X_test", self.X_test),
