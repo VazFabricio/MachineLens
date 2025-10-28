@@ -42,8 +42,8 @@ jobs:
         isort --check-only --skip __init__.py src tests
 
     - name: Lint with flake8
-      run: |
-        flake8 --exclude '(^tests/.*|.*/__init__\.py$)' src tests
+      run: flake8 src tests
+
 
     - name: Run mypy
       run: |
