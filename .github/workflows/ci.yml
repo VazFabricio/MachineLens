@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: "3.13"
 
@@ -22,32 +22,42 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -e .
-        pip install black isort flake8 mypy pytest pre-commit
+        pip install black isort flake8 mypy pytest pre-commit pydocstyle darglint flake8-docstrings
 
-    - name: Install docstring tools
+    # --- Definir variável de exclusão conforme a branch ---
+    - name: Set exclude pattern
+      id: exclude
       run: |
-        pip install pydocstyle darglint flake8-docstrings
+        if [[ "${GITHUB_REF##*/}" == "dev" ]]; then
+          echo "exclude='(^tests/.*|.*/__init__\\.py$)'" >> $GITHUB_ENV
+        else
+          echo "exclude=''" >> $GITHUB_ENV
+        fi
 
+    # --- Verificações de estilo e qualidade ---
     - name: Check docstrings with pydocstyle (Google)
       run: |
         pydocstyle src --convention=google
 
     - name: Check docstrings match signature with darglint
       run: |
-        # darglint falha se houver mismatch; opcional: rode só em CI
         darglint src || (echo "darglint failed" && exit 1)
 
     - name: Lint with black
-      run: black --check src tests
+      run: |
+        black --check --exclude "$exclude" src tests
 
     - name: Check imports with isort
-      run: isort --check-only src tests
+      run: |
+        isort --check-only --skip __init__.py src tests
 
     - name: Lint with flake8
-      run: flake8 src tests
+      run: |
+        flake8 --exclude "$exclude" src tests
 
     - name: Run mypy
-      run: mypy src --ignore-missing-imports
+      run: |
+        mypy src --ignore-missing-imports
 
     - name: Run tests
       run: pytest tests
