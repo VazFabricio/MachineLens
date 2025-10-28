@@ -13,11 +13,11 @@ exclude =
     src/**/*.egg-info
 
 extend-ignore =
-    E203,  # whitespace before ':'
-    W503,  # line break before binary operator
-    E501,  # line too long (handled by black)
-    D100,  # Missing docstring in public module
-    D101,  # Missing docstring in public class
-    D102,  # Missing docstring in public method
-    D103,  # Missing docstring in public function
-    D104,  # Missing docstring in public package
+    E203,
+    W503,
+    E501,
+    D100,
+    D101,
+    D102,
+    D103,
+    D104,
