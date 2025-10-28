@@ -33,6 +33,10 @@ ignore_missing_imports = true   # ignora imports de bibliotecas sem stubs
 
 [tool.pydocstyle]
 convention = "google"
+add-ignore = []
+match-dir = "^(?!tests).*"
+match = "^(?!__init__\\.py$).*"
+
 
 [tool.flake8]
 max-line-length = 88
