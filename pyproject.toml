@@ -34,7 +34,7 @@ ignore_missing_imports = true   # ignora imports de bibliotecas sem stubs
 [tool.pydocstyle]
 convention = "google"
 add-ignore = []
-match-dir = "^(?!tests).*"
+match-dir = "^(?!tests|.*\\.egg-info).*"
 match = "^(?!__init__\\.py$).*"
 
 
