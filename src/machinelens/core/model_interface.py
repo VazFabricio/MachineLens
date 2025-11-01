@@ -2,17 +2,30 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional, Union
+from typing import Any, Dict, Optional, Union, cast
 
 import numpy as np
 import pandas as pd
+from sklearn.base import is_classifier, is_clusterer, is_regressor
+from sklearn.ensemble import BaseEnsemble
+from sklearn.linear_model import (
+    Lasso,
+    LinearRegression,
+    LogisticRegression,
+    Ridge,
+)
+from sklearn.tree import BaseDecisionTree
 
 PandasLike = Union[pd.DataFrame, pd.Series]
 ArrayLike = Union[np.ndarray, pd.Series]
 
+ModelResults = Dict[str, Union[str, Dict[str, Any]]]
+
 
 class ModelInterface:
     """Encapsulate model data and provide validation utilities."""
+
+    results: ModelResults
 
     def __init__(
         self,
@@ -24,17 +37,17 @@ class ModelInterface:
         y_pred: Optional[ArrayLike],
         problem_type: str = "regression",
     ) -> None:
-        """Initialize the ModelInterface with data and model references.
+        """Initialize the ModelInterface with model, data splits, and predictions.
 
         Args:
-            model (Any): The fitted machine learning model object.
-            X_train (Optional[PandasLike]): Training features.
-            X_test (Optional[PandasLike]): Test features.
-            y_train (Optional[ArrayLike]): Training target values.
-            y_test (Optional[ArrayLike]): Test target values.
-            y_pred (Optional[ArrayLike]): Model's predictions on the test set.
-            problem_type (str): The type of problem, e.g., "regression" or
-                "classification". Defaults to "regression".
+            model (Any): The trained machine learning model object.
+            X_train (Optional[PandasLike]): The training features (e.g., pd.DataFrame).
+            X_test (Optional[PandasLike]): The test features (e.g., pd.DataFrame).
+            y_train (Optional[ArrayLike]): The training target values (e.g., np.ndarray).
+            y_test (Optional[ArrayLike]): The ground truth target values for the test set.
+            y_pred (Optional[ArrayLike]): The model's predictions on the test set (X_test).
+            problem_type (str): The type of machine learning problem.
+                Defaults to "regression".
         """
         self.model = model
         self.X_train = X_train
@@ -44,7 +57,15 @@ class ModelInterface:
         self.y_pred = y_pred
         self.problem_type = problem_type
 
+        self.results = {
+            "Model Name": type(model).__name__,
+            "Task Type": "Other/Unsupervised",
+            "Algorithm Family": "Other/Unknown",
+            "Analysis Results": {},
+        }
+
         self._validate_inputs()
+        self._analyze_and_classify_model()
 
     def _validate_inputs(self) -> None:
         """Validate shapes and types of inputs to catch user errors early.
@@ -82,3 +103,86 @@ class ModelInterface:
                 raise ValueError(
                     f"X_test has length {nX} but y_pred has length {npred}"
                 )
+
+    def _analyze_and_classify_model(self):
+        """Analyze the model to determine its task type and algorithm family.
+
+        Inspects the `self.model` object using `sklearn.base` helpers
+        (e.g., `is_classifier`, `is_regressor`) and `isinstance` checks
+        to categorize the model.
+
+        This method populates the `self.results` dictionary with findings
+        like 'Task Type', 'Algorithm Family', and details on available
+        attributes (e.g., 'Coefficients Available').
+
+        Returns:
+            Dict[str, Any]: The updated `self.results` dictionary.
+        """
+        model = self.model
+        model_name = type(model).__name__
+        model_module = type(model).__module__
+
+        self.results["Model Name"] = model_name
+
+        analysis_results: Dict[str, Any] = cast(
+            Dict[str, Any], self.results["Analysis Results"]
+        )
+
+        # --- 1. Determine the TASK TYPE ---
+        if is_classifier(model):
+            self.results["Task Type"] = "Supervised Classification"
+        elif is_regressor(model):
+            self.results["Task Type"] = "Supervised Regression"
+        elif is_clusterer(model):
+            self.results["Task Type"] = "Unsupervised Clustering"
+
+        # --- 2. Determine the ALGORITHM FAMILY ---
+
+        if isinstance(model, BaseEnsemble):
+            self.results["Algorithm Family"] = "Ensemble (Forest/Boosting)"
+            if hasattr(model, "feature_importances_"):
+                analysis_results["Feature Importance Available"] = True
+
+        elif isinstance(model, (LinearRegression, Ridge, Lasso, LogisticRegression)):
+            self.results["Algorithm Family"] = "Linear Model (Regression/Logit)"
+            if hasattr(model, "coef_"):
+                analysis_results["Coefficients Available"] = True
+            if hasattr(model, "intercept_"):
+                analysis_results["Coefficients Available"] = True
+
+        elif isinstance(model, BaseDecisionTree):
+            self.results["Algorithm Family"] = "Single Decision Tree"
+            if hasattr(model, "feature_importances_"):
+                analysis_results["Feature Importance Available"] = True
+
+        elif model_module.startswith("sklearn.naive_bayes"):
+            self.results["Algorithm Family"] = "Probabilistic (Naive Bayes)"
+            if hasattr(model, "class_prior_"):
+                analysis_results["Class Priors Available"] = True
+
+        elif model_module.startswith("sklearn.neighbors"):
+            self.results["Algorithm Family"] = "Instance-based (K-Nearest Neighbors)"
+
+        elif model_module.startswith("sklearn.svm"):
+            self.results["Algorithm Family"] = "Support Vector Machines (Kernel-based)"
+
+        elif model_module.startswith("sklearn.cluster"):
+            self.results["Algorithm Family"] = "Clustering"
+            if hasattr(model, "n_clusters"):
+                analysis_results["Expected Attribute"] = "n_clusters"
+
+        # --- 3. Fallback based on name pattern (for custom or 3rd party models) ---
+        elif "forest" in model_name.lower() or "boost" in model_name.lower():
+            self.results["Algorithm Family"] = "Ensemble (Forest/Boosting)"
+        elif "tree" in model_name.lower():
+            self.results["Algorithm Family"] = "Decision Tree"
+        elif "linear" in model_name.lower():
+            self.results["Algorithm Family"] = "Linear Model"
+        elif "svm" in model_name.lower() or "svc" in model_name.lower():
+            self.results["Algorithm Family"] = "Support Vector Machine"
+        elif "bayes" in model_name.lower():
+            self.results["Algorithm Family"] = "Probabilistic (Naive Bayes)"
+        elif "knn" in model_name.lower() or "neighbor" in model_name.lower():
+            self.results["Algorithm Family"] = "Instance-based (K-Nearest Neighbors)"
+
+        return self.results
