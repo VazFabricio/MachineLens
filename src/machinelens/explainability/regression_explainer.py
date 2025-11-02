@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
+import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
@@ -404,12 +405,12 @@ class RegressionExplainer(BaseExplainer):
 
         # ----------- Residual Distribution -----------
         fig3, ax3 = plt.subplots(figsize=(6, 5))
-        n, bins, patches = ax3.hist(residuals, bins=30, alpha=0.8, edgecolor="black")
+        _, bins, patches = ax3.hist(residuals, bins=30, alpha=0.8, edgecolor="black")
         bin_centers = 0.5 * (bins[:-1] + bins[1:])
-        colors_hist = plt.cm.plasma(
+        colors_hist = cm.plasma(
             np.clip(np.abs(bin_centers) / max(1e-9, vmax_abs_residuals), 0, 1)
         )
-        for patch, color in zip(patches, colors_hist):
+        for patch, color in zip(patches, colors_hist):  # type: ignore [arg-type]
             patch.set_facecolor(color)
         mean_res = float(np.mean(residuals))
         ax3.axvline(
@@ -429,7 +430,7 @@ class RegressionExplainer(BaseExplainer):
         fig4, ax4 = plt.subplots(figsize=(6, 5))
         (osm, osr), (slope, intercept, r) = stats.probplot(residuals, dist="norm")
         dist = np.abs(osr - (intercept + slope * osm))
-        colors_qq = plt.cm.plasma(
+        colors_qq = cm.plasma(
             np.clip(dist / (np.max(dist) if np.max(dist) != 0 else 1.0), 0, 1)
         )
         ax4.scatter(osm, osr, c=colors_qq, s=30)
@@ -589,7 +590,7 @@ class RegressionExplainer(BaseExplainer):
                         sns.set_style("whitegrid")
                         sns.set_context("talk", font_scale=0.9)
 
-                        fig, ax = plt.subplots(figsize=(6.5, 5.5))
+                        fig, ax = plt.subplots(figsize=(6.5, 5.5), layout="constrained")
                         order = ["Low Residual", "High Residual"]
                         palette = {
                             "Low Residual": "#006AFFAD",
@@ -677,8 +678,6 @@ class RegressionExplainer(BaseExplainer):
                         ax.yaxis.grid(True, linestyle="--", alpha=0.5)
                         ax.xaxis.grid(False)
                         sns.despine(ax=ax, trim=True)
-
-                        fig.set_constrained_layout(True)
 
                         key = f"residual_outlier_{col}"
                         self.plots[key] = fig
