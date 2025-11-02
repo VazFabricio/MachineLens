@@ -407,7 +407,7 @@ class RegressionExplainer(BaseExplainer):
         fig3, ax3 = plt.subplots(figsize=(6, 5))
         _, bins, patches = ax3.hist(residuals, bins=30, alpha=0.8, edgecolor="black")
         bin_centers = 0.5 * (bins[:-1] + bins[1:])
-        colors_hist = cm.plasma(
+        colors_hist = cm.plasma(  # type: ignore [attr-defined]
             np.clip(np.abs(bin_centers) / max(1e-9, vmax_abs_residuals), 0, 1)
         )
         for patch, color in zip(patches, colors_hist):  # type: ignore [arg-type]
@@ -430,7 +430,7 @@ class RegressionExplainer(BaseExplainer):
         fig4, ax4 = plt.subplots(figsize=(6, 5))
         (osm, osr), (slope, intercept, r) = stats.probplot(residuals, dist="norm")
         dist = np.abs(osr - (intercept + slope * osm))
-        colors_qq = cm.plasma(
+        colors_qq = cm.plasma(  # type: ignore [attr-defined]
             np.clip(dist / (np.max(dist) if np.max(dist) != 0 else 1.0), 0, 1)
         )
         ax4.scatter(osm, osr, c=colors_qq, s=30)
