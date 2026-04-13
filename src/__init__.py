@@ -1,7 +1,7 @@
 """MachineLens module."""
 
 
-from machinelens import core, diagnostics, explainability, report, utils, visualization
+import core, diagnostics, explainability, report, utils, visualization
 
 __all__ = [
     "core",

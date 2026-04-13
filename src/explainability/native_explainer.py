@@ -153,22 +153,19 @@ class NativeExplainer(BaseExplainer):
 
         results = {}
         for feature in features:
-            try:
-                pd_result = partial_dependence(
-                    model,
-                    X_test,
-                    features=[feature],
-                    grid_resolution=grid_resolution,
-                    **kwargs,
-                )
-                results[str(feature)] = {
-                    "grid": pd_result["values"][0].tolist(),
-                    "average": pd_result["average"][0].tolist(),
-                }
-            except Exception:
-                continue
+            pd_result = partial_dependence(
+                model,
+                X_test,
+                features=[feature],
+                grid_resolution=grid_resolution,
+                **kwargs,
+            )
+            results[str(feature)] = {
+                "grid": pd_result["grid_values"][0].tolist(),
+                "average": pd_result["average"][0].tolist(),
+            }
 
-        return results if results else None
+        return results
 
     def sensitivity_analysis(
         self, noise_level: float = 0.1, n_iterations: int = 5, **kwargs: Any
