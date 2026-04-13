@@ -47,7 +47,7 @@ class ModelInterface:
         """
         if not isinstance(model, BaseEstimator):
             raise TypeError(
-                "O modelo deve ser uma instância de sklearn.base.BaseEstimator."
+                "The model must be an instance of sklearn.base.BaseEstimator."
             )
 
         self.model = model
@@ -86,7 +86,7 @@ class ModelInterface:
             check_is_fitted(self.model)
         except NotFittedError as e:
             raise ValueError(
-                f"O modelo fornecido não está treinado. Execute .fit() antes. Erro: {e}"
+                f"The provided model is not fitted. Execute .fit() before. Error: {e}"
             ) from e
 
         for name, obj in (
