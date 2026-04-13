@@ -7,12 +7,8 @@ readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.10"
 dependencies = [
-    "ipykernel>=7.2.0",
-    "jinja2>=3.1.6",
-    "kaleido>=1.1.0",
     "lime>=0.2.0.1",
     "matplotlib>=3.10.7",
-    "nbformat>=5.10.4",
     "numpy>=2.2.6",
     "pandas>=2.3.3",
     "plotly>=6.3.1",
@@ -24,9 +20,13 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "ipykernel>=7.2.0",
+    "nbformat>=5.10.4",
+    "kaleido>=1.1.0",
     "mypy>=1.18.2",
     "pre-commit>=4.3.0",
     "pytest>=8.4.2",
+    "pytest-cov>=6.0.0",
     "ruff>=0.3.2",
 ]
 
@@ -65,3 +65,9 @@ convention = "numpy"
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
+
+[tool.pytest.ini_options]
+pythonpath = [
+    "src"
+]
+addopts = "--cov=src --cov-report=term-missing"

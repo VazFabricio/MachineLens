@@ -17,7 +17,9 @@ Thumbs.db
 
 src/start.ipynb
 
-# Tooling caches
 .mypy_cache/
 .pytest_cache/
 .ruff_cache/
+
+.coverage
+htmlcov/
