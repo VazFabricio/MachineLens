@@ -7,4 +7,17 @@ wheels/
 *.egg-info
 planofstructure.txt
 .venv
+.env
+*.log
 *.egg-info/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+src/start.ipynb
+
+# Tooling caches
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/

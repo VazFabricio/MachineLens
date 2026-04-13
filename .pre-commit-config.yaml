@@ -1,43 +1,29 @@
 exclude: '(^tests/.*|.*/__init__\.py$)'
 
 repos:
-- repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v6.0.0
-  hooks:
-    - id: trailing-whitespace
-    - id: end-of-file-fixer
-    - id: check-yaml
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
 
-- repo: https://github.com/psf/black
-  rev: 25.9.0
-  hooks:
-    - id: black
+  - repo: https://github.com/psf/black
+    rev: 25.1.0
+    hooks:
+      - id: black
 
-- repo: https://github.com/PyCQA/isort
-  rev: 7.0.0
-  hooks:
-    - id: isort
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.3.2
+    hooks:
+      - id: ruff
+        args: [--fix]
 
-- repo: https://github.com/PyCQA/flake8
-  rev: 7.3.0
-  hooks:
-    - id: flake8
-      additional_dependencies: [flake8-docstrings]
-
-- repo: https://github.com/PyCQA/pydocstyle
-  rev: 6.3.0
-  hooks:
-    - id: pydocstyle
-      args: ['--convention=google']
-
-- repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v1.18.2
-  hooks:
-    - id: mypy
-      args: [--ignore-missing-imports]
-      language_version: python3.13
-
-- repo: https://github.com/terrencepreilly/darglint
-  rev: v1.8.1
-  hooks:
-    - id: darglint
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.15.0
+    hooks:
+      - id: mypy
+        args: [--ignore-missing-imports]
+        additional_dependencies: [pandas-stubs]
