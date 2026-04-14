@@ -135,8 +135,8 @@ class RegressionDiagnostics:
         features_meta = []
 
         for col in numeric_cols:
-            high_vals = X_high[col].dropna().values
-            low_vals = X_low[col].dropna().values
+            high_vals = X_high[col].dropna().to_numpy()
+            low_vals = X_low[col].dropna().to_numpy()
 
             n_high = len(high_vals)
             n_low = len(low_vals)
