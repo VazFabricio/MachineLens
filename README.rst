@@ -22,6 +22,7 @@ MachineLens is a XAI Python tool for automated model diagnostics and explainabil
 It provides a high-level interface to generate diagnostics for classification and regression tasks, supporting any estimator that follows the scikit-learn API.
 
 Website: https://github.com/vazfabricio/machinelens
+
 Documentation: https://github.com/vazfabricio/machinelens#documentation
 
 
@@ -45,7 +46,7 @@ Dependencies
 MachineLens requires:
 
 - Python (>= |PythonMinVersion|)
-**- Scikit-learn (>= |ScikitLearnMinVersion|)**
+- Scikit-learn (>= |ScikitLearnMinVersion|)
 - NumPy (>= |NumPyMinVersion|)
 - Pandas (>= |PandasMinVersion|)
 - Matplotlib (>= |MatplotlibMinVersion|)
