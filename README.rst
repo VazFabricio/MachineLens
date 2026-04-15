@@ -17,6 +17,11 @@
 .. |License| image:: https://img.shields.io/badge/License-BSD%203--Clause-blue.svg
    :target: https://opensource.org/licenses/BSD-3-Clause
 
+.. image:: https://github.com/VazFabricio/MachineLens/blob/5b385b13b40397ef98d34d44c80e29b3dbc7cc8c/docs/images/MachineLensLogo.jpg
+   :alt: Logo da Biblioteca
+   :align: center
+   :width: 200px
+
 MachineLens is a XAI Python tool for automated model diagnostics and explainability post training. It is specifically designed to work seamlessly with the scikit-learn ecosystem, streamlining the evaluation of machine learning models through comprehensive reports.
 
 It provides a high-level interface to generate diagnostics for classification and regression tasks, supporting any estimator that follows the scikit-learn API.
