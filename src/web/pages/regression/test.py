@@ -233,21 +233,25 @@ def _graph(graph_id: str, fig, height: str = _GRAPH_H, desc_key: str | None = No
 # ---------------------------------------------------------------------------
 
 
-def create_layout(results: Dict[str, Any]) -> dbc.Container:
+def create_layout(diag: Any) -> dbc.Container:
     """
     Create and compile the overall structure for the Regression Test Diagnostics dashboard view.
 
     Parameters
     ----------
-    results : Dict[str, Any]
-        The extracted analysis output dictionary fetched from RegressionDiagnostics.
+    diag : Any
+        The instantiated diagnostics object (RegressionDiagnostics).
 
     Returns
     -------
     dbc.Container
         Bootstrap standard container carrying vertically stacked graph rows.
     """
-    model_name = results.get("metadata", {}).get("model_name", "Unknown Model")
+    results = getattr(diag, "results", {})
+    try:
+        model_name = diag.model.__class__.__name__
+    except AttributeError:
+        model_name = results.get("metadata", {}).get("model_name", "Unknown Model")
     metrics = _compute_metrics(results)
     plots = get_plots(results)
 

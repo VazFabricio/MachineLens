@@ -52,21 +52,21 @@ def create_dashboard(diag: Any) -> Dash:
             if pathname == "/regression/test":
                 from .pages.regression.test import create_layout
 
-                return create_layout(results)
+                return create_layout(diag)
             elif pathname == "/regression/train":
                 from .pages.regression.train import create_layout
 
-                return create_layout(results)
+                return create_layout(diag)
 
         elif task_type == "classification":
             if pathname == "/classification/test":
                 from .pages.classification.test import create_layout
 
-                return create_layout(results)
+                return create_layout(diag)
             elif pathname == "/classification/train":
                 from .pages.classification.train import create_layout
 
-                return create_layout(results)
+                return create_layout(diag)
 
         return dbc.Container(
             [

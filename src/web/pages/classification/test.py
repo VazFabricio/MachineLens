@@ -115,21 +115,25 @@ def get_plots(results: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def create_layout(results: Dict[str, Any]) -> dbc.Container:
+def create_layout(diag: Any) -> dbc.Container:
     """
     Create and compile the overall structure for the Classification Test Diagnostics dashboard view.
 
     Parameters
     ----------
-    results : Dict[str, Any]
-        The extracted analysis output dictionary fetched from ClassificationDiagnostics.
+    diag : Any
+        The instantiated diagnostics object (ClassificationDiagnostics).
 
     Returns
     -------
     dbc.Container
         Bootstrap standard container carrying vertically stacked graph rows.
     """
-    model_name = results.get("metadata", {}).get("model_name", "Unknown Model")
+    results = getattr(diag, "results", {})
+    try:
+        model_name = diag.model.__class__.__name__
+    except AttributeError:
+        model_name = results.get("metadata", {}).get("model_name", "Unknown Model")
     plots = get_plots(results)
 
     return dbc.Container(
