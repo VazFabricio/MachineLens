@@ -93,14 +93,46 @@ class ClassificationPlots:
     # ------------------------------------------------------------------
 
     def plot_metrics_table_test(self) -> None:
-        """Generate a styled Plotly table for the test set metrics."""
+        """
+        Generate a styled Plotly table for the test set metrics.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         self._plot_metrics_table(subset="test")
 
     def plot_metrics_table_train(self) -> None:
-        """Generate a styled Plotly table for the training set metrics."""
+        """
+        Generate a styled Plotly table for the training set metrics.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         self._plot_metrics_table(subset="train")
 
     def _plot_metrics_table(self, subset: str) -> None:
+        """
+        Plot classification metrics table via internal dispatcher.
+
+        Parameters
+        ----------
+        subset : str
+            The diagnostic subset to evaluate ('train' or 'test').
+
+        Returns
+        -------
+        None
+        """
         metrics = self.results.get(f"classification_metrics_{subset}")
         if not metrics:
             return
@@ -149,16 +181,50 @@ class ClassificationPlots:
         self.plots[f"metrics_table_{subset}"] = fig
 
     def plot_confusion_matrix_test(self, normalize: Optional[str] = None) -> None:
-        """Generate confusion matrix heatmap for the test set."""
+        """
+        Generate confusion matrix heatmap for the test set.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         self._plot_confusion_matrix(subset="test", normalize=normalize)
 
     def plot_confusion_matrix_train(self, normalize: Optional[str] = None) -> None:
-        """Generate confusion matrix heatmap for the training set."""
+        """
+        Generate confusion matrix heatmap for the training set.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         self._plot_confusion_matrix(subset="train", normalize=normalize)
 
     def _plot_confusion_matrix(
         self, subset: str, normalize: Optional[str] = None
     ) -> None:
+        """
+        Plot confusion matrix heatmaps via internal dispatcher.
+
+        Parameters
+        ----------
+        subset : str
+            The diagnostic subset to evaluate ('train' or 'test').
+        normalize : Optional[str]
+            Optional normalization setting for the matrix values.
+
+        Returns
+        -------
+        None
+        """
         df_cm = self.results.get(f"confusion_matrix_{subset}")
         if df_cm is None:
             return
@@ -201,14 +267,46 @@ class ClassificationPlots:
         self.plots[f"confusion_matrix_{subset}"] = fig
 
     def plot_misclassification_feature_plots_test(self) -> None:
-        """Generate box+strip plots for the test set misclassifications."""
+        """
+        Generate box+strip plots for the test set misclassifications.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         self._plot_misclassification_feature_plots(subset="test")
 
     def plot_misclassification_feature_plots_train(self) -> None:
-        """Generate box+strip plots for the training set misclassifications."""
+        """
+        Generate box+strip plots for the training set misclassifications.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         self._plot_misclassification_feature_plots(subset="train")
 
     def _plot_misclassification_feature_plots(self, subset: str) -> None:
+        """
+        Compute and plot significant features for misclassifications via internal dispatcher.
+
+        Parameters
+        ----------
+        subset : str
+            The diagnostic subset to evaluate ('train' or 'test').
+
+        Returns
+        -------
+        None
+        """
         res_df = self.results.get(f"misclassification_analysis_{subset}")
         if res_df is None or getattr(res_df, "empty", True):
             return
@@ -303,14 +401,46 @@ class ClassificationPlots:
         self.results[f"misclassification_plots_{subset}"] = created
 
     def plot_class_distribution_test(self) -> None:
-        """Plot the count of actual vs predicted classes for the test set."""
+        """
+        Plot the count of actual vs predicted classes for the test set.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         self._plot_class_distribution("test")
 
     def plot_class_distribution_train(self) -> None:
-        """Plot the count of actual vs predicted classes for the training set."""
+        """
+        Plot the count of actual vs predicted classes for the training set.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         self._plot_class_distribution("train")
 
     def _plot_class_distribution(self, subset: str) -> None:
+        """
+        Compute and plot actual vs. predicted class distributions via internal dispatcher.
+
+        Parameters
+        ----------
+        subset : str
+            The diagnostic subset to evaluate ('train' or 'test').
+
+        Returns
+        -------
+        None
+        """
         data = self.results.get(f"classification_data_{subset}")
         if not data:
             return
@@ -351,14 +481,46 @@ class ClassificationPlots:
         self.plots[f"class_distribution_{subset}"] = fig
 
     def plot_roc_curve_test(self) -> None:
-        """Plot ROC curve and AUC for the test set."""
+        """
+        Plot ROC curve and AUC for the test set.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         self._plot_roc_curve("test")
 
     def plot_roc_curve_train(self) -> None:
-        """Plot ROC curve and AUC for the training set."""
+        """
+        Plot ROC curve and AUC for the training set.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         self._plot_roc_curve("train")
 
     def _plot_roc_curve(self, subset: str) -> None:
+        """
+        Aggregate and plot the ROC curve analysis via internal dispatcher.
+
+        Parameters
+        ----------
+        subset : str
+            The diagnostic subset to evaluate ('train' or 'test').
+
+        Returns
+        -------
+        None
+        """
         roc_data = self.results.get(f"roc_curve_{subset}")
         if not roc_data:
             return
@@ -404,14 +566,46 @@ class ClassificationPlots:
         self.plots[f"roc_curve_{subset}"] = fig
 
     def plot_pr_curve_test(self) -> None:
-        """Plot Precision-Recall curve and Average Precision for the test set."""
+        """
+        Plot Precision-Recall curve and Average Precision for the test set.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         self._plot_pr_curve("test")
 
     def plot_pr_curve_train(self) -> None:
-        """Plot Precision-Recall curve and Average Precision for the training set."""
+        """
+        Plot Precision-Recall curve and Average Precision for the training set.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         self._plot_pr_curve("train")
 
     def _plot_pr_curve(self, subset: str) -> None:
+        """
+        Compute and plot Precision-Recall curves via internal dispatcher.
+
+        Parameters
+        ----------
+        subset : str
+            The diagnostic subset to evaluate ('train' or 'test').
+
+        Returns
+        -------
+        None
+        """
         pr_data = self.results.get(f"pr_curve_{subset}")
         if not pr_data:
             return
@@ -453,14 +647,46 @@ class ClassificationPlots:
         self.plots[f"pr_curve_{subset}"] = fig
 
     def plot_probability_distribution_test(self) -> None:
-        """Plot KDE of classification confidence (probability) for the test set."""
+        """
+        Plot KDE of classification confidence (probability) for the test set.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         self._plot_probability_distribution("test")
 
     def plot_probability_distribution_train(self) -> None:
-        """Plot KDE of classification confidence (probability) for the training set."""
+        """
+        Plot KDE of classification confidence (probability) for the training set.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         self._plot_probability_distribution("train")
 
     def _plot_probability_distribution(self, subset: str) -> None:
+        """
+        Plot the prediction confidence kernel density estimates via internal dispatcher.
+
+        Parameters
+        ----------
+        subset : str
+            The diagnostic subset to evaluate ('train' or 'test').
+
+        Returns
+        -------
+        None
+        """
         data = self.results.get(f"classification_data_{subset}")
         if not data or data.get("y_prob") is None:
             return
@@ -539,7 +765,17 @@ class ClassificationPlots:
         self.plots[f"probability_distribution_{subset}"] = fig
 
     def run_all(self) -> None:
-        """Generate the symmetric suite of classification plots."""
+        """
+        Generate the symmetric suite of classification plots.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         self.plots = {}
         for subset in ["train", "test"]:
             getattr(self, f"plot_class_distribution_{subset}")()
