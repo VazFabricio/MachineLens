@@ -5,60 +5,21 @@ import pandas as pd
 import plotly.graph_objects as go
 from scipy import stats as scipy_stats
 
-# ---------------------------------------------------------------------------
-# Design tokens – clean white theme
-# ---------------------------------------------------------------------------
-_BG = "#ffffff"
-_SURFACE = "#fafbfc"
-_GRID = "rgba(0,0,0,0.06)"
-_FONT_COLOR = "#1e293b"
-_FONT_MUTED = "#64748b"
-_FONT_FAMILY = "Inter, system-ui, sans-serif"
-_ACCENT_BLUE = "#3b82f6"
-_ACCENT_RED = "#ef4444"
-_ACCENT_GREEN = "#10b981"
-_COLORSCALE = "Blues"
-_BORDER = "rgba(0,0,0,0.08)"
-
-_LAYOUT_BASE = dict(
-    paper_bgcolor=_BG,
-    plot_bgcolor=_SURFACE,
-    font=dict(family=_FONT_FAMILY, color=_FONT_COLOR, size=13),
-    margin=dict(l=60, r=40, t=55, b=55),
-    hoverlabel=dict(
-        bgcolor="white",
-        bordercolor=_BORDER,
-        font=dict(family=_FONT_FAMILY, color=_FONT_COLOR, size=12),
-    ),
+from .style import (
+    _ACCENT_BLUE,
+    _ACCENT_RED,
+    _AXIS_BASE,
+    _BORDER,
+    _COLORBAR_STYLE,
+    _FONT_COLOR,
+    _FONT_FAMILY,
+    _FONT_MUTED,
+    _LAYOUT_BASE,
+    _title_dict,
 )
-
-_AXIS_BASE = dict(
-    gridcolor=_GRID,
-    gridwidth=1,
-    zerolinecolor="rgba(0,0,0,0.12)",
-    zerolinewidth=1,
-    linecolor="rgba(0,0,0,0.10)",
-    tickfont=dict(size=11, color=_FONT_MUTED),
-    title_font=dict(size=13, color=_FONT_COLOR),
+from .style import (
+    _COLORSCALE_CLASS as _COLORSCALE,
 )
-
-_COLORBAR_STYLE = dict(
-    thickness=14,
-    tickfont=dict(color=_FONT_MUTED, size=11),
-    outlinecolor=_BORDER,
-    outlinewidth=1,
-    bgcolor="rgba(0,0,0,0)",
-)
-
-
-def _title_dict(text: str) -> dict:
-    """Build a standard centred title."""
-    return dict(
-        text=text,
-        font=dict(size=15, color=_FONT_COLOR, family=_FONT_FAMILY),
-        x=0.5,
-        xanchor="center",
-    )
 
 
 class ClassificationPlots:
@@ -153,31 +114,13 @@ class ClassificationPlots:
         if not names:
             return
 
-        fig = go.Figure(
-            go.Table(
-                header=dict(
-                    values=["<b>Metric</b>", "<b>Value</b>"],
-                    fill_color="#f1f5f9",
-                    align="center",
-                    font=dict(family=_FONT_FAMILY, size=13, color=_FONT_COLOR),
-                    line_color=_BORDER,
-                    height=36,
-                ),
-                cells=dict(
-                    values=[names, values],
-                    fill_color=[["white"] * len(names)],
-                    align="center",
-                    font=dict(family=_FONT_FAMILY, size=13, color=_FONT_COLOR),
-                    line_color=_BORDER,
-                    height=32,
-                ),
-            )
+        from .plot_utils import create_metrics_table
+
+        fig = create_metrics_table(
+            names=names,
+            values=values,
+            title=f"Classification Metrics ({subset.capitalize()})",
         )
-        layout_kwargs = _LAYOUT_BASE | {
-            "title": _title_dict(f"Classification Metrics ({subset.capitalize()})"),
-            "margin": dict(l=30, r=30, t=55, b=20),
-        }
-        fig.update_layout(**layout_kwargs)
         self.plots[f"metrics_table_{subset}"] = fig
 
     def plot_confusion_matrix_test(self, normalize: Optional[str] = None) -> None:

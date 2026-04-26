@@ -5,146 +5,16 @@ import pandas as pd
 import plotly.graph_objects as go
 from scipy import stats as scipy_stats
 
-# ---------------------------------------------------------------------------
-# Design tokens – clean white theme
-# ---------------------------------------------------------------------------
-_BG = "#ffffff"
-_SURFACE = "#fafbfc"
-_GRID = "rgba(0,0,0,0.06)"
-_FONT_COLOR = "#1e293b"
-_FONT_MUTED = "#64748b"
-_FONT_FAMILY = "Inter, system-ui, sans-serif"
-_ACCENT_BLUE = "#3b82f6"
-_ACCENT_RED = "#ef4444"
-_ACCENT_GREEN = "#10b981"
-_ACCENT_AMBER = "#f59e0b"
-_COLORSCALE = [
-    [0.0, "#3b82f6"],  # Deep Blue (Small residuals)
-    [0.4, "#a855f7"],  # Purple
-    [0.7, "#f97316"],  # Orange
-    [1.0, "#ef4444"],  # Bright Red (High residuals)
-]
-_BORDER = "rgba(0,0,0,0.08)"
-
-_LAYOUT_BASE = dict(
-    paper_bgcolor=_BG,
-    plot_bgcolor=_SURFACE,
-    font=dict(family=_FONT_FAMILY, color=_FONT_COLOR, size=10),
-    margin=dict(l=48, r=30, t=40, b=40),
-    hoverlabel=dict(
-        bgcolor="white",
-        bordercolor=_BORDER,
-        font=dict(family=_FONT_FAMILY, color=_FONT_COLOR, size=10),
-    ),
-    legend=dict(
-        font=dict(size=9),
-        bgcolor="rgba(255,255,255,0.85)",
-        bordercolor=_BORDER,
-        borderwidth=1,
-    ),
+from .style import (
+    _ACCENT_AMBER,
+    _ACCENT_BLUE,
+    _ACCENT_GREEN,
+    _ACCENT_RED,
+    _FONT_MUTED,
+    _add_lowess_with_ci,
+    _get_sequential_color,
+    _layout,
 )
-
-_AXIS_BASE = dict(
-    gridcolor=_GRID,
-    gridwidth=1,
-    zerolinecolor="rgba(0,0,0,0.12)",
-    zerolinewidth=1,
-    linecolor="rgba(0,0,0,0.10)",
-    tickfont=dict(size=9, color=_FONT_MUTED),
-    title_font=dict(size=10, color=_FONT_COLOR),
-)
-
-_COLORBAR_STYLE = dict(
-    thickness=10,
-    tickfont=dict(color=_FONT_MUTED, size=8),
-    outlinecolor=_BORDER,
-    outlinewidth=1,
-    bgcolor="rgba(0,0,0,0)",
-    len=0.6,
-)
-
-
-def _title_dict(text: str) -> dict:
-    """Build a standard centred title."""
-    return dict(
-        text=text,
-        font=dict(size=12, color=_FONT_COLOR, family=_FONT_FAMILY),
-        x=0.5,
-        xanchor="center",
-    )
-
-
-def _layout(
-    title: str = "", xaxis: dict | None = None, yaxis: dict | None = None
-) -> dict:
-    """Build a complete layout dict merging base + per-chart overrides."""
-    kw: dict = dict(**_LAYOUT_BASE)
-    if title:
-        kw["title"] = _title_dict(title)
-    kw["xaxis"] = {**_AXIS_BASE, **(xaxis or {})}
-    kw["yaxis"] = {**_AXIS_BASE, **(yaxis or {})}
-    return kw
-
-
-def _add_lowess_with_ci(
-    fig: go.Figure,
-    lowess_data: Dict[str, Any],
-    line_color: str = _ACCENT_RED,
-    fill_color: str = "rgba(239,68,68,0.10)",
-    name: str = "LOWESS",
-) -> None:
-    """Add a LOWESS smoothed line with shaded CI band to a figure."""
-    xs = lowess_data["x_smooth"]
-    ys = lowess_data["y_smooth"]
-    ci_lo = lowess_data["ci_lower"]
-    ci_hi = lowess_data["ci_upper"]
-
-    # CI band (upper boundary → reversed lower boundary to close the fill)
-    fig.add_trace(
-        go.Scatter(
-            x=np.concatenate([xs, xs[::-1]]).tolist(),
-            y=np.concatenate([ci_hi, ci_lo[::-1]]).tolist(),
-            fill="toself",
-            fillcolor=fill_color,
-            line=dict(width=0),
-            showlegend=False,
-            hoverinfo="skip",
-            name=f"{name} 95% CI",
-        )
-    )
-
-    # Smoothed line
-    fig.add_trace(
-        go.Scatter(
-            x=xs.tolist(),
-            y=ys.tolist(),
-            mode="lines",
-            line=dict(color=line_color, width=2),
-            name=name,
-            hoverinfo="skip",
-        )
-    )
-
-
-def _get_sequential_color(t: float) -> str:
-    """Get a color from the custom Blue-to-Red scale (0 to 1)."""
-    stops = [
-        (0.0, (59, 130, 246)),  # #3b82f6
-        (0.4, (168, 85, 247)),  # #a855f7
-        (0.7, (249, 115, 22)),  # #f97316
-        (1.0, (239, 68, 68)),  # #ef4444
-    ]
-    t = float(np.clip(t, 0.0, 1.0))
-    for i in range(len(stops) - 1):
-        t0, c0 = stops[i]
-        t1, c1 = stops[i + 1]
-        if t0 <= t <= t1:
-            frac = (t - t0) / (t1 - t0)
-            r = int(c0[0] + frac * (c1[0] - c0[0]))
-            g = int(c0[1] + frac * (c1[1] - c0[1]))
-            b = int(c0[2] + frac * (c1[2] - c0[2]))
-            return f"rgb({r},{g},{b})"
-    return "rgb(239,68,68)"
 
 
 class RegressionPlots:
@@ -254,32 +124,11 @@ class RegressionPlots:
         names = [r[0] for r in rows]
         values = [r[1] for r in rows]
 
-        fig = go.Figure(
-            go.Table(
-                header=dict(
-                    values=["<b>Metric</b>", "<b>Value</b>"],
-                    fill_color="#f1f5f9",
-                    align="center",
-                    font=dict(family=_FONT_FAMILY, size=13, color=_FONT_COLOR),
-                    line_color=_BORDER,
-                    height=36,
-                ),
-                cells=dict(
-                    values=[names, values],
-                    fill_color=[["white"] * len(names)],
-                    align="center",
-                    font=dict(family=_FONT_FAMILY, size=13, color=_FONT_COLOR),
-                    line_color=_BORDER,
-                    height=32,
-                ),
-            )
-        )
+        from .plot_utils import create_metrics_table
 
-        layout_kwargs = _LAYOUT_BASE | {
-            "title": _title_dict("Regression Metrics"),
-            "margin": dict(l=30, r=30, t=55, b=20),
-        }
-        fig.update_layout(**layout_kwargs)
+        fig = create_metrics_table(
+            names=names, values=values, title="Regression Metrics"
+        )
         self.plots["metrics_table"] = fig
 
     def plot_actual_vs_predicted_test(self) -> None:
@@ -302,55 +151,21 @@ class RegressionPlots:
         if y_test_arr is None or y_pred_arr is None or abs_residuals is None:
             return
 
-        vmax = float(np.percentile(abs_residuals, 97))
-        marker_color = np.clip(abs_residuals, 0, vmax)
+        from .plot_utils import create_residual_scatter_plot
 
-        min_val = float(np.min(y_test_arr))
-        max_val = float(np.max(y_test_arr))
-
-        fig = go.Figure()
-
-        fig.add_trace(
-            go.Scatter(
-                x=[min_val, max_val],
-                y=[min_val, max_val],
-                mode="lines",
-                line=dict(color="rgba(0,0,0,0.25)", dash="dash", width=1.5),
-                name="Ideal fit",
-                hoverinfo="skip",
-            )
-        )
-
-        fig.add_trace(
-            go.Scatter(
-                x=y_test_arr.tolist(),
-                y=y_pred_arr.tolist(),
-                mode="markers",
-                name="Observations",
-                marker=dict(
-                    color=marker_color.tolist(),
-                    colorscale=_COLORSCALE,
-                    cmin=0,
-                    cmax=vmax,
-                    size=6,
-                    opacity=0.85,
-                    colorbar=dict(title="|Residual|", **_COLORBAR_STYLE),
-                    line=dict(width=0.3, color="rgba(0,0,0,0.1)"),
-                ),
-                hovertemplate=(
-                    "Actual: <b>%{x:.4g}</b><br>"
-                    "Predicted: <b>%{y:.4g}</b><br>"
-                    "|Residual|: <b>%{marker.color:.4g}</b><extra></extra>"
-                ),
-            )
-        )
-
-        fig.update_layout(
-            **_layout(
-                title="Actual vs. Predicted (Test)",
-                xaxis=dict(title="Actual"),
-                yaxis=dict(title="Predicted"),
-            )
+        fig = create_residual_scatter_plot(
+            x=y_test_arr,
+            y=y_pred_arr,
+            abs_residuals=abs_residuals,
+            title="Actual vs. Predicted (Test)",
+            xaxis_title="Actual",
+            yaxis_title="Predicted",
+            add_identity_line=True,
+            hover_template=(
+                "Actual: <b>%{x:.4g}</b><br>"
+                "Predicted: <b>%{y:.4g}</b><br>"
+                "|Residual|: <b>%{marker.color:.4g}</b><extra></extra>"
+            ),
         )
         self.plots["actual_vs_predicted_test"] = fig
 
@@ -374,54 +189,23 @@ class RegressionPlots:
         if y_test_arr is None or residuals is None or abs_residuals is None:
             return
 
-        vmax = float(np.percentile(abs_residuals, 97))
-        marker_color = np.clip(abs_residuals, 0, vmax)
+        from .plot_utils import create_residual_scatter_plot
 
-        fig = go.Figure()
-
-        fig.add_hline(
-            y=0,
-            line=dict(color="rgba(0,0,0,0.25)", dash="dash", width=1.5),
+        fig = create_residual_scatter_plot(
+            x=y_test_arr,
+            y=residuals,
+            abs_residuals=abs_residuals,
+            title="Residuals vs. Actual (Test)",
+            xaxis_title="Actual",
+            yaxis_title="Residual",
+            add_zero_line=True,
+            lowess=res_data.get("linearity_lowess"),
+            hover_template=(
+                "Actual: <b>%{x:.4g}</b><br>"
+                "Residual: <b>%{y:.4g}</b><br>"
+                "|Residual|: <b>%{marker.color:.4g}</b><extra></extra>"
+            ),
         )
-
-        fig.add_trace(
-            go.Scatter(
-                x=y_test_arr.tolist(),
-                y=residuals.tolist(),
-                mode="markers",
-                name="Residuals",
-                marker=dict(
-                    color=marker_color.tolist(),
-                    colorscale=_COLORSCALE,
-                    cmin=0,
-                    cmax=vmax,
-                    size=6,
-                    opacity=0.85,
-                    colorbar=dict(title="|Residual|", **_COLORBAR_STYLE),
-                    line=dict(width=0.3, color="rgba(0,0,0,0.1)"),
-                ),
-                hovertemplate=(
-                    "Actual: <b>%{x:.4g}</b><br>"
-                    "Residual: <b>%{y:.4g}</b><br>"
-                    "|Residual|: <b>%{marker.color:.4g}</b><extra></extra>"
-                ),
-            )
-        )
-
-        fig.update_layout(
-            **_layout(
-                title="Residuals vs. Actual (Test)",
-                xaxis=dict(title="Actual"),
-                yaxis=dict(title="Residual"),
-            )
-        )
-
-        # Add LOWESS + CI
-        lowess = res_data.get("linearity_lowess")
-        if lowess:
-            # Reusing the linearity lowess for vs. actual is standard if distribution allows
-            _add_lowess_with_ci(fig, lowess)
-
         self.plots["residuals_vs_actual_test"] = fig
 
     def plot_residuals_vs_predicted_test(self) -> None:
@@ -444,52 +228,24 @@ class RegressionPlots:
         if y_pred_arr is None or residuals is None or abs_residuals is None:
             return
 
-        vmax = float(np.percentile(abs_residuals, 97))
-        marker_color = np.clip(abs_residuals, 0, vmax)
+        from .plot_utils import create_residual_scatter_plot
 
-        fig = go.Figure()
-
-        fig.add_hline(
-            y=0,
-            line=dict(color="rgba(0,0,0,0.25)", dash="dash", width=1.5),
+        fig = create_residual_scatter_plot(
+            x=y_pred_arr,
+            y=residuals,
+            abs_residuals=abs_residuals,
+            title="Residuals vs. Predicted (Test)",
+            xaxis_title="Predicted",
+            yaxis_title="Residual",
+            add_zero_line=True,
+            lowess=res_data.get("linearity_lowess"),
+            marker_size=5,
+            hover_template=(
+                "Predicted: <b>%{x:.4g}</b><br>"
+                "Residual: <b>%{y:.4g}</b><br>"
+                "|Residual|: <b>%{marker.color:.4g}</b><extra></extra>"
+            ),
         )
-
-        fig.add_trace(
-            go.Scatter(
-                x=y_pred_arr.tolist(),
-                y=residuals.tolist(),
-                mode="markers",
-                name="Residuals",
-                marker=dict(
-                    color=marker_color.tolist(),
-                    colorscale=_COLORSCALE,
-                    cmin=0,
-                    cmax=vmax,
-                    size=5,
-                    opacity=0.85,
-                    colorbar=dict(title="|Residual|", **_COLORBAR_STYLE),
-                    line=dict(width=0.3, color="rgba(0,0,0,0.1)"),
-                ),
-                hovertemplate=(
-                    "Predicted: <b>%{x:.4g}</b><br>"
-                    "Residual: <b>%{y:.4g}</b><br>"
-                    "|Residual|: <b>%{marker.color:.4g}</b><extra></extra>"
-                ),
-            )
-        )
-
-        fig.update_layout(
-            **_layout(
-                title="Residuals vs. Predicted (Test)",
-                xaxis=dict(title="Predicted"),
-                yaxis=dict(title="Residual"),
-            )
-        )
-
-        # Add LOWESS + CI
-        lowess = res_data.get("linearity_lowess")
-        if lowess:
-            _add_lowess_with_ci(fig, lowess)
 
         self.plots["residuals_vs_predicted_test"] = fig
 
@@ -594,70 +350,16 @@ class RegressionPlots:
             ):
                 return
 
-            ref_line = qq_intercept + qq_slope * qq_osm
-            dist = np.abs(qq_osr - ref_line)
-            max_dist = float(np.max(dist)) if np.max(dist) != 0 else 1.0
-            norm_dist = np.clip(dist / max_dist, 0.0, 1.0)
+            from .plot_utils import create_qq_plot
 
-            point_colors = [_get_sequential_color(v) for v in norm_dist.tolist()]
-
-            fig = go.Figure()
-
-            # 95% CI envelope
-            if qq_ci_lower is not None and qq_ci_upper is not None:
-                ci_lower_line = qq_intercept + qq_slope * qq_ci_lower
-                ci_upper_line = qq_intercept + qq_slope * qq_ci_upper
-                fig.add_trace(
-                    go.Scatter(
-                        x=np.concatenate([qq_osm, qq_osm[::-1]]).tolist(),
-                        y=np.concatenate([ci_upper_line, ci_lower_line[::-1]]).tolist(),
-                        fill="toself",
-                        fillcolor="rgba(59,130,246,0.10)",
-                        line=dict(width=0),
-                        showlegend=True,
-                        name="95% CI",
-                        hoverinfo="skip",
-                    )
-                )
-
-            # Reference line
-            fig.add_trace(
-                go.Scatter(
-                    x=qq_osm.tolist(),
-                    y=ref_line.tolist(),
-                    mode="lines",
-                    name="Theoretical",
-                    line=dict(color="rgba(0,0,0,0.25)", dash="dash", width=1.5),
-                    hoverinfo="skip",
-                )
-            )
-
-            # Q-Q scatter
-            fig.add_trace(
-                go.Scatter(
-                    x=qq_osm.tolist(),
-                    y=qq_osr.tolist(),
-                    mode="markers",
-                    name="Sample quantiles",
-                    marker=dict(
-                        color=point_colors,
-                        size=6,
-                        opacity=0.9,
-                        line=dict(width=0.3, color="rgba(0,0,0,0.1)"),
-                    ),
-                    hovertemplate=(
-                        "Theoretical: <b>%{x:.4g}</b><br>"
-                        "Sample: <b>%{y:.4g}</b><extra></extra>"
-                    ),
-                )
-            )
-
-            fig.update_layout(
-                **_layout(
-                    title="Q-Q Plot of Residuals (Test)",
-                    xaxis=dict(title="Theoretical Quantiles"),
-                    yaxis=dict(title="Sample Quantiles"),
-                )
+            fig = create_qq_plot(
+                qq_osm=qq_osm,
+                qq_osr=qq_osr,
+                qq_slope=qq_slope,
+                qq_intercept=qq_intercept,
+                qq_ci_lower=qq_ci_lower,
+                qq_ci_upper=qq_ci_upper,
+                title="Q-Q Plot of Residuals (Test)",
             )
             self.plots["qq_test"] = fig
         except Exception:
@@ -910,49 +612,21 @@ class RegressionPlots:
         if y_pred_train is None or residuals is None:
             return
 
-        abs_res = np.abs(residuals)
-        vmax = float(np.percentile(abs_res, 97))
-        marker_c = np.clip(abs_res, 0, vmax)
+        from .plot_utils import create_residual_scatter_plot
 
-        fig = go.Figure()
-
-        # Zero line
-        fig.add_hline(y=0, line=dict(color="rgba(0,0,0,0.2)", dash="dash", width=1.5))
-
-        # Scatter
-        fig.add_trace(
-            go.Scatter(
-                x=y_pred_train.tolist(),
-                y=residuals.tolist(),
-                mode="markers",
-                name="Residuals",
-                marker=dict(
-                    color=marker_c.tolist(),
-                    colorscale=_COLORSCALE,
-                    cmin=0,
-                    cmax=vmax,
-                    size=5,
-                    opacity=0.7,
-                    colorbar=dict(title="|Residual|", **_COLORBAR_STYLE),
-                    line=dict(width=0),
-                ),
-                hovertemplate=(
-                    "Fitted: <b>%{x:.4g}</b><br>"
-                    "Residual: <b>%{y:.4g}</b><extra></extra>"
-                ),
-            )
-        )
-
-        # LOWESS + CI
-        if lowess is not None:
-            _add_lowess_with_ci(fig, lowess)
-
-        fig.update_layout(
-            **_layout(
-                title="Linearity — Residuals vs. Fitted (Train)",
-                xaxis=dict(title="Fitted Values"),
-                yaxis=dict(title="Residuals"),
-            )
+        fig = create_residual_scatter_plot(
+            x=y_pred_train,
+            y=residuals,
+            abs_residuals=np.abs(residuals),
+            title="Linearity — Residuals vs. Fitted (Train)",
+            xaxis_title="Fitted Values",
+            yaxis_title="Residuals",
+            add_zero_line=True,
+            lowess=lowess,
+            marker_size=5,
+            opacity=0.7,
+            line_width=0,
+            hover_template="Fitted: <b>%{x:.4g}</b><br>Residual: <b>%{y:.4g}</b><extra></extra>",
         )
         self.plots["linearity_train"] = fig
 
@@ -1243,70 +917,16 @@ class RegressionPlots:
             ):
                 return
 
-            ref_line = qq_intercept + qq_slope * qq_osm
-            dist = np.abs(qq_osr - ref_line)
-            max_dist = float(np.max(dist)) if np.max(dist) != 0 else 1.0
-            norm_dist = np.clip(dist / max_dist, 0.0, 1.0)
+            from .plot_utils import create_qq_plot
 
-            point_colors = [_get_sequential_color(v) for v in norm_dist.tolist()]
-
-            fig = go.Figure()
-
-            # 95% CI envelope
-            if qq_ci_lower is not None and qq_ci_upper is not None:
-                ci_lower_line = qq_intercept + qq_slope * qq_ci_lower
-                ci_upper_line = qq_intercept + qq_slope * qq_ci_upper
-                fig.add_trace(
-                    go.Scatter(
-                        x=np.concatenate([qq_osm, qq_osm[::-1]]).tolist(),
-                        y=np.concatenate([ci_upper_line, ci_lower_line[::-1]]).tolist(),
-                        fill="toself",
-                        fillcolor="rgba(59,130,246,0.10)",
-                        line=dict(width=0),
-                        showlegend=True,
-                        name="95% CI",
-                        hoverinfo="skip",
-                    )
-                )
-
-            # Reference line
-            fig.add_trace(
-                go.Scatter(
-                    x=qq_osm.tolist(),
-                    y=ref_line.tolist(),
-                    mode="lines",
-                    name="Theoretical",
-                    line=dict(color="rgba(0,0,0,0.25)", dash="dash", width=1.5),
-                    hoverinfo="skip",
-                )
-            )
-
-            # Q-Q scatter
-            fig.add_trace(
-                go.Scatter(
-                    x=qq_osm.tolist(),
-                    y=qq_osr.tolist(),
-                    mode="markers",
-                    name="Sample quantiles",
-                    marker=dict(
-                        color=point_colors,
-                        size=6,
-                        opacity=0.9,
-                        line=dict(width=0.3, color="rgba(0,0,0,0.1)"),
-                    ),
-                    hovertemplate=(
-                        "Theoretical: <b>%{x:.4g}</b><br>"
-                        "Sample: <b>%{y:.4g}</b><extra></extra>"
-                    ),
-                )
-            )
-
-            fig.update_layout(
-                **_layout(
-                    title="Q-Q Plot — Normality of Residuals (Train)",
-                    xaxis=dict(title="Theoretical Quantiles"),
-                    yaxis=dict(title="Sample Quantiles"),
-                )
+            fig = create_qq_plot(
+                qq_osm=qq_osm,
+                qq_osr=qq_osr,
+                qq_slope=qq_slope,
+                qq_intercept=qq_intercept,
+                qq_ci_lower=qq_ci_lower,
+                qq_ci_upper=qq_ci_upper,
+                title="Q-Q Plot — Normality of Residuals (Train)",
             )
             self.plots["qq_train"] = fig
         except Exception:
@@ -1316,6 +936,14 @@ class RegressionPlots:
         """Scale-Location Plot (Test): Check homoscedasticity.
 
         Plots sqrt|Standardized Residuals| vs Fitted values with LOWESS + CI.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
         """
         res_data = self._get_res_data()
         if not res_data:
