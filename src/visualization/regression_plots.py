@@ -18,18 +18,29 @@ _ACCENT_BLUE = "#3b82f6"
 _ACCENT_RED = "#ef4444"
 _ACCENT_GREEN = "#10b981"
 _ACCENT_AMBER = "#f59e0b"
-_COLORSCALE = "Plasma"
+_COLORSCALE = [
+    [0.0, "#3b82f6"],  # Deep Blue (Small residuals)
+    [0.4, "#a855f7"],  # Purple
+    [0.7, "#f97316"],  # Orange
+    [1.0, "#ef4444"],  # Bright Red (High residuals)
+]
 _BORDER = "rgba(0,0,0,0.08)"
 
 _LAYOUT_BASE = dict(
     paper_bgcolor=_BG,
     plot_bgcolor=_SURFACE,
-    font=dict(family=_FONT_FAMILY, color=_FONT_COLOR, size=13),
-    margin=dict(l=65, r=50, t=60, b=60),
+    font=dict(family=_FONT_FAMILY, color=_FONT_COLOR, size=10),
+    margin=dict(l=48, r=30, t=40, b=40),
     hoverlabel=dict(
         bgcolor="white",
         bordercolor=_BORDER,
-        font=dict(family=_FONT_FAMILY, color=_FONT_COLOR, size=12),
+        font=dict(family=_FONT_FAMILY, color=_FONT_COLOR, size=10),
+    ),
+    legend=dict(
+        font=dict(size=9),
+        bgcolor="rgba(255,255,255,0.85)",
+        bordercolor=_BORDER,
+        borderwidth=1,
     ),
 )
 
@@ -39,16 +50,17 @@ _AXIS_BASE = dict(
     zerolinecolor="rgba(0,0,0,0.12)",
     zerolinewidth=1,
     linecolor="rgba(0,0,0,0.10)",
-    tickfont=dict(size=11, color=_FONT_MUTED),
-    title_font=dict(size=13, color=_FONT_COLOR),
+    tickfont=dict(size=9, color=_FONT_MUTED),
+    title_font=dict(size=10, color=_FONT_COLOR),
 )
 
 _COLORBAR_STYLE = dict(
-    thickness=14,
-    tickfont=dict(color=_FONT_MUTED, size=11),
+    thickness=10,
+    tickfont=dict(color=_FONT_MUTED, size=8),
     outlinecolor=_BORDER,
     outlinewidth=1,
     bgcolor="rgba(0,0,0,0)",
+    len=0.6,
 )
 
 
@@ -56,7 +68,7 @@ def _title_dict(text: str) -> dict:
     """Build a standard centred title."""
     return dict(
         text=text,
-        font=dict(size=15, color=_FONT_COLOR, family=_FONT_FAMILY),
+        font=dict(size=12, color=_FONT_COLOR, family=_FONT_FAMILY),
         x=0.5,
         xanchor="center",
     )
@@ -114,26 +126,25 @@ def _add_lowess_with_ci(
     )
 
 
-def _plasma_color(t: float) -> str:
-    """Get a Plasma colorscale color from a 0-1 float."""
-    plasma_stops = [
-        (0.0, (13, 8, 135)),
-        (0.25, (126, 3, 168)),
-        (0.5, (204, 71, 120)),
-        (0.75, (248, 149, 64)),
-        (1.0, (240, 249, 33)),
+def _get_sequential_color(t: float) -> str:
+    """Get a color from the custom Blue-to-Red scale (0 to 1)."""
+    stops = [
+        (0.0, (59, 130, 246)),  # #3b82f6
+        (0.4, (168, 85, 247)),  # #a855f7
+        (0.7, (249, 115, 22)),  # #f97316
+        (1.0, (239, 68, 68)),  # #ef4444
     ]
     t = float(np.clip(t, 0.0, 1.0))
-    for i in range(len(plasma_stops) - 1):
-        t0, c0 = plasma_stops[i]
-        t1, c1 = plasma_stops[i + 1]
+    for i in range(len(stops) - 1):
+        t0, c0 = stops[i]
+        t1, c1 = stops[i + 1]
         if t0 <= t <= t1:
             frac = (t - t0) / (t1 - t0)
             r = int(c0[0] + frac * (c1[0] - c0[0]))
             g = int(c0[1] + frac * (c1[1] - c0[1]))
             b = int(c0[2] + frac * (c1[2] - c0[2]))
             return f"rgb({r},{g},{b})"
-    return "rgb(240,249,33)"
+    return "rgb(239,68,68)"
 
 
 class RegressionPlots:
@@ -165,11 +176,31 @@ class RegressionPlots:
         self.plots: Dict[str, go.Figure] = {}
 
     def _get_res_data(self) -> Dict[str, Any]:
-        """Get residuals_data (test) from results."""
+        """
+        Get residuals_data (test) from results.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         return self.results.get("residuals_data", {})
 
     def _get_train_data(self) -> Dict[str, Any]:
-        """Get training_diagnostics from results."""
+        """
+        Get training_diagnostics from results.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         return self.results.get("training_diagnostics", {})
 
     # ======================================================================
@@ -177,7 +208,17 @@ class RegressionPlots:
     # ======================================================================
 
     def plot_metrics_table(self) -> None:
-        """Generate a styled Plotly table displaying global regression metrics."""
+        """
+        Generate a styled Plotly table displaying global regression metrics.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         res_data = self._get_res_data()
         y_test = res_data.get("y_test")
         y_pred = res_data.get("y_pred")
@@ -242,7 +283,17 @@ class RegressionPlots:
         self.plots["metrics_table"] = fig
 
     def plot_actual_vs_predicted_test(self) -> None:
-        """Plot Actual vs. Predicted values for **test** data."""
+        """
+        Plot Actual vs. Predicted values for **test** data.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         res_data = self._get_res_data()
         y_test_arr = res_data.get("y_test")
         y_pred_arr = res_data.get("y_pred")
@@ -304,7 +355,17 @@ class RegressionPlots:
         self.plots["actual_vs_predicted_test"] = fig
 
     def plot_residuals_vs_actual_test(self) -> None:
-        """Plot Residuals vs. Actual values for **test** data."""
+        """
+        Plot Residuals vs. Actual values for **test** data.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         res_data = self._get_res_data()
         y_test_arr = res_data.get("y_test")
         residuals = res_data.get("residuals")
@@ -364,7 +425,17 @@ class RegressionPlots:
         self.plots["residuals_vs_actual_test"] = fig
 
     def plot_residuals_vs_predicted_test(self) -> None:
-        """Plot Residuals vs. Predicted values for **test** data."""
+        """
+        Plot Residuals vs. Predicted values for **test** data.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         res_data = self._get_res_data()
         y_pred_arr = res_data.get("y_pred")
         residuals = res_data.get("residuals")
@@ -423,7 +494,17 @@ class RegressionPlots:
         self.plots["residuals_vs_predicted_test"] = fig
 
     def plot_residual_distribution_test(self) -> None:
-        """Plot the distribution histogram of residuals for **test** data."""
+        """
+        Plot the distribution histogram of residuals for **test** data.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         res_data = self._get_res_data()
         residuals = res_data.get("residuals")
         abs_residuals = res_data.get("abs_residuals")
@@ -438,7 +519,7 @@ class RegressionPlots:
         bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
         norm_c = np.clip(np.abs(bin_centers) / max(1e-9, vmax), 0, 1)
 
-        bar_colors = [_plasma_color(v) for v in norm_c]
+        bar_colors = [_get_sequential_color(v) for v in norm_c]
         widths = (bin_edges[1:] - bin_edges[:-1]).tolist()
 
         fig = go.Figure()
@@ -485,7 +566,17 @@ class RegressionPlots:
         self.plots["residual_distribution_test"] = fig
 
     def plot_qq_test(self) -> None:
-        """Plot the Q-Q plot for **test** residuals with 95 % CI envelope."""
+        """
+        Plot the Q-Q plot for **test** residuals with 95 % CI envelope.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         res_data = self._get_res_data()
         qq_osm = res_data.get("qq_osm")
         qq_osr = res_data.get("qq_osr")
@@ -508,7 +599,7 @@ class RegressionPlots:
             max_dist = float(np.max(dist)) if np.max(dist) != 0 else 1.0
             norm_dist = np.clip(dist / max_dist, 0.0, 1.0)
 
-            point_colors = [_plasma_color(v) for v in norm_dist.tolist()]
+            point_colors = [_get_sequential_color(v) for v in norm_dist.tolist()]
 
             fig = go.Figure()
 
@@ -573,7 +664,17 @@ class RegressionPlots:
             pass
 
     def plot_residual_outliers_test(self) -> None:
-        """Plot significant residual outliers as box+strip charts for **test** data."""
+        """
+        Plot significant residual outliers as box+strip charts for **test** data.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         analysis = self.results.get("residual_outlier_analysis")
         if not analysis or not isinstance(analysis, dict):
             return
@@ -693,12 +794,6 @@ class RegressionPlots:
                     ),
                     boxmode="group",
                     showlegend=True,
-                    legend=dict(
-                        bgcolor="rgba(255,255,255,0.9)",
-                        bordercolor=_BORDER,
-                        borderwidth=1,
-                        font=dict(color=_FONT_COLOR, size=12),
-                    ),
                 )
 
                 key = f"residual_outlier_{col}_test"
@@ -717,7 +812,17 @@ class RegressionPlots:
     # ======================================================================
 
     def plot_posterior_predictive_train(self) -> None:
-        """Compare KDE of actual y_train vs. predicted y_pred_train."""
+        """
+        Compare KDE of actual y_train vs. predicted y_pred_train.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         td = self._get_train_data()
         y_train = td.get("y_train")
         y_pred_train = td.get("y_pred_train")
@@ -782,16 +887,21 @@ class RegressionPlots:
                 xaxis=dict(title="Target Value"),
                 yaxis=dict(title="Density"),
             ),
-            legend=dict(
-                bgcolor="rgba(255,255,255,0.9)",
-                bordercolor=_BORDER,
-                borderwidth=1,
-            ),
         )
         self.plots["posterior_predictive_train"] = fig
 
     def plot_linearity_train(self) -> None:
-        """Residuals vs. Fitted values with LOWESS + 95 % CI (training data)."""
+        """
+        Residuals vs. Fitted values with LOWESS + 95 % CI (training data).
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         td = self._get_train_data()
         y_pred_train = td.get("y_pred_train")
         residuals = td.get("residuals")
@@ -847,7 +957,17 @@ class RegressionPlots:
         self.plots["linearity_train"] = fig
 
     def plot_scale_location_train(self) -> None:
-        """Scale-Location plot: sqrt|std residuals| vs. fitted (training data)."""
+        """
+        Scale-Location plot: sqrt|std residuals| vs. fitted (training data).
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         td = self._get_train_data()
         y_pred_train = td.get("y_pred_train")
         sqrt_abs_std = td.get("sqrt_abs_std_resid")
@@ -890,7 +1010,17 @@ class RegressionPlots:
         self.plots["scale_location_train"] = fig
 
     def plot_leverage_train(self) -> None:
-        """Residuals vs. Leverage with Cook's Distance contours (training data)."""
+        """
+        Residuals vs. Leverage with Cook's Distance contours (training data).
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         td = self._get_train_data()
         leverage = td.get("leverage")
         std_resid = td.get("std_residuals")
@@ -980,16 +1110,21 @@ class RegressionPlots:
                 xaxis=dict(title="Leverage (Hat Value)"),
                 yaxis=dict(title="Standardized Residuals"),
             ),
-            legend=dict(
-                bgcolor="rgba(255,255,255,0.9)",
-                bordercolor=_BORDER,
-                borderwidth=1,
-            ),
         )
         self.plots["leverage_train"] = fig
 
     def plot_vif_train(self) -> None:
-        """Variance Inflation Factor bar chart with risk-zone shading (training data)."""
+        """
+        Variance Inflation Factor bar chart with risk-zone shading (training data).
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         td = self._get_train_data()
         vif_data = td.get("vif")
 
@@ -1080,7 +1215,17 @@ class RegressionPlots:
         self.plots["vif_train"] = fig
 
     def plot_qq_train(self) -> None:
-        """Q-Q plot of standardized training residuals with 95 % CI envelope."""
+        """
+        Q-Q plot of standardized training residuals with 95 % CI envelope.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         td = self._get_train_data()
         qq_osm = td.get("qq_osm")
         qq_osr = td.get("qq_osr")
@@ -1103,7 +1248,7 @@ class RegressionPlots:
             max_dist = float(np.max(dist)) if np.max(dist) != 0 else 1.0
             norm_dist = np.clip(dist / max_dist, 0.0, 1.0)
 
-            point_colors = [_plasma_color(v) for v in norm_dist.tolist()]
+            point_colors = [_get_sequential_color(v) for v in norm_dist.tolist()]
 
             fig = go.Figure()
 
@@ -1219,7 +1364,17 @@ class RegressionPlots:
     # ======================================================================
 
     def run_all(self) -> None:
-        """Generate all regression plots and store them in the ``plots`` dictionary."""
+        """
+        Generate all regression plots and store them in the ``plots`` dictionary.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         self.plots = {}
 
         # ---- Test-data plots ----
