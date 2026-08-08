@@ -6,7 +6,7 @@ import pandas as pd
 from typing import Tuple
 from sklearn.base import BaseEstimator
 
-from core.model_interface import ModelInterface
+from machinelens.core.model_interface import ModelInterface
 
 
 def test_model_interface_classification_happy_path(

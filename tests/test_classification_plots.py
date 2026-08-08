@@ -7,9 +7,10 @@ from typing import Tuple
 
 import plotly.graph_objects as go
 from sklearn.base import BaseEstimator
-from core.model_interface import ModelInterface
-from diagnostics.classification_diagnostics import ClassificationDiagnostics
-from visualization.classification_plots import ClassificationPlots
+from machinelens.core.model_interface import ModelInterface
+from machinelens.core.data_classes import DiagnosticResults
+from machinelens.analyzer.classification_analyzer import ClassificationAnalyzer
+from machinelens.plots.plots import DiagnosticPlotter
 
 
 @pytest.fixture
@@ -29,65 +30,48 @@ def classification_interface(
 
 
 @pytest.fixture
-def diag_runner(classification_interface: ModelInterface) -> ClassificationDiagnostics:
+def diag_runner(classification_interface: ModelInterface) -> DiagnosticResults:
     """Pre-run diagnostics."""
-    diag = ClassificationDiagnostics(classification_interface)
-    diag.run_all()
-    return diag
+    analyzer = ClassificationAnalyzer(classification_interface)
+    dr = DiagnosticResults(
+        problem_type="classification",
+        model_name="RandomForestClassifier",
+        algorithm_family="Ensemble (Forest/Boosting/Bagging)",
+        feature_names=classification_interface.X_train.columns.tolist()
+    )
+    analyzer.analyze(dr)
+    return dr
 
 
-def test_classification_plots_init(diag_runner: ClassificationDiagnostics) -> None:
+def test_classification_plots_init(diag_runner: DiagnosticResults) -> None:
     """Test initialization."""
-    plots = ClassificationPlots(diag_runner.results)
-    assert isinstance(plots.plots, dict)
+    plots = DiagnosticPlotter(diag_runner)
+    assert plots.results == diag_runner
 
 
-def test_plot_metrics_table(diag_runner: ClassificationDiagnostics) -> None:
-    """Test plot metrics table generation."""
-    plots = ClassificationPlots(diag_runner.results)
-    plots.plot_metrics_table_test()
-    
-    key = "metrics_table_test"
-    assert key in plots.plots
-    assert isinstance(plots.plots[key], go.Figure)
+def test_plot_metrics(diag_runner: DiagnosticResults) -> None:
+    """Test plot metrics generation."""
+    plots = DiagnosticPlotter(diag_runner)
+    fig = plots.plot_metrics()
+    assert isinstance(fig, go.Figure)
 
 
-def test_plot_confusion_matrix(diag_runner: ClassificationDiagnostics) -> None:
+def test_plot_confusion_matrix(diag_runner: DiagnosticResults) -> None:
     """Test confusion matrix rendering context."""
-    plots = ClassificationPlots(diag_runner.results)
-    plots.plot_confusion_matrix_test()
-    
-    key = "confusion_matrix_test"
-    assert key in plots.plots
-    assert isinstance(plots.plots[key], go.Figure)
+    plots = DiagnosticPlotter(diag_runner)
+    fig = plots.plot_confusion_matrix()
+    assert isinstance(fig, go.Figure)
 
 
-def test_plot_roc_curve(diag_runner: ClassificationDiagnostics) -> None:
+def test_plot_roc_curve(diag_runner: DiagnosticResults) -> None:
     """Test ROC curve plotly figure generation."""
-    plots = ClassificationPlots(diag_runner.results)
-    plots.plot_roc_curve_test()
-    
-    key = "roc_curve_test"
-    assert key in plots.plots
-    assert isinstance(plots.plots[key], go.Figure)
+    plots = DiagnosticPlotter(diag_runner)
+    fig = plots.plot_roc_curve()
+    assert isinstance(fig, go.Figure)
 
 
-def test_plot_pr_curve(diag_runner: ClassificationDiagnostics) -> None:
+def test_plot_pr_curve(diag_runner: DiagnosticResults) -> None:
     """Test Precision-Recall curve plotly figure generation."""
-    plots = ClassificationPlots(diag_runner.results)
-    plots.plot_pr_curve_test()
-    
-    key = "pr_curve_test"
-    assert key in plots.plots
-    assert isinstance(plots.plots[key], go.Figure)
-
-
-def test_run_all(diag_runner: ClassificationDiagnostics) -> None:
-    """Test the run_all executor triggers all plot renderings."""
-    plots = ClassificationPlots(diag_runner.results)
-    plots.run_all()
-    
-    keys = list(plots.plots.keys())
-    assert len(keys) > 0
-    assert any("confusion_matrix_test" in k for k in keys)
-    assert any("roc_curve_test" in k for k in keys)
+    plots = DiagnosticPlotter(diag_runner)
+    fig = plots.plot_pr_curve()
+    assert isinstance(fig, go.Figure)

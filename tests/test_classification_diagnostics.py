@@ -1,14 +1,14 @@
-"""Unit tests for the ClassificationDiagnostics module."""
+"""Unit tests for the ClassificationAnalyzer module."""
 
 import pytest
 import numpy as np
 import pandas as pd
-from unittest.mock import patch
 from typing import Tuple
 
 from sklearn.base import BaseEstimator
-from core.model_interface import ModelInterface
-from diagnostics.classification_diagnostics import ClassificationDiagnostics
+from machinelens.core.model_interface import ModelInterface
+from machinelens.core.data_classes import DiagnosticResults
+from machinelens.analyzer.classification_analyzer import ClassificationAnalyzer
 
 
 @pytest.fixture
@@ -27,71 +27,42 @@ def classification_interface(
     )
 
 
-def test_classification_diagnostics_init(classification_interface: ModelInterface) -> None:
-    """Test initialization."""
-    diag = ClassificationDiagnostics(classification_interface)
-    assert diag.model is not None
-    assert isinstance(diag.results, dict)
-
-
-def test_classification_metrics_happy_path(classification_interface: ModelInterface) -> None:
-    """Test metrics computing functionality."""
-    diag = ClassificationDiagnostics(classification_interface)
+def test_classification_analyzer_happy_path(classification_interface: ModelInterface) -> None:
+    """Test full analysis computing functionality."""
+    analyzer = ClassificationAnalyzer(classification_interface)
     
-    test_metrics = diag.classification_metrics_test()
-    assert "accuracy" in test_metrics
-    assert "precision" in test_metrics
-    assert "recall" in test_metrics
-    assert "f1_score" in test_metrics
+    dr = DiagnosticResults(
+        problem_type="classification",
+        model_name="RandomForestClassifier",
+        algorithm_family="Ensemble (Forest/Boosting/Bagging)",
+        feature_names=classification_interface.X_train.columns.tolist()
+    )
     
-    train_metrics = diag.classification_metrics_train()
-    assert len(train_metrics) > 0
-
-
-def test_confusion_matrix_happy_path(classification_interface: ModelInterface) -> None:
-    """Test confusion matrix parsing."""
-    diag = ClassificationDiagnostics(classification_interface)
-    cm = diag.confusion_matrix_test()
-    assert cm is not None
-    assert isinstance(cm, pd.DataFrame)
+    analyzer.analyze(dr)
     
-    cm_train = diag.confusion_matrix_train()
-    assert cm_train is not None
-
-
-def test_compute_roc_curve_happy_path(classification_interface: ModelInterface) -> None:
-    """Test ROC curve parsing."""
-    diag = ClassificationDiagnostics(classification_interface)
-    roc = diag.compute_roc_curve_test()
-    assert roc is not None
-    assert "binary" in roc
-    assert "auc" in roc["binary"]
-
-
-def test_compute_pr_curve_happy_path(classification_interface: ModelInterface) -> None:
-    """Test PR curve computing."""
-    diag = ClassificationDiagnostics(classification_interface)
-    pr = diag.compute_pr_curve_test()
-    assert pr is not None
-    assert "binary" in pr
-    assert "ap" in pr["binary"]
-
-
-def test_misclassification_analysis_happy_path(classification_interface: ModelInterface) -> None:
-    """Test statistical extraction of misclassifications."""
-    diag = ClassificationDiagnostics(classification_interface)
-    # Using min_group_size=1 to avoid returning empty on small mismatch subsets.
-    res = diag.misclassification_analysis_test(min_group_size=1, normality_check=False)
-    assert res is not None
-    assert isinstance(res, pd.DataFrame)
-
-
-def test_run_all(classification_interface: ModelInterface) -> None:
-    """Test the run_all executor handles execution without exception."""
-    diag = ClassificationDiagnostics(classification_interface)
-    diag.run_all()
-    # verify that metrics are updated
-    keys = list(diag.results.keys())
-    assert any("classification_metrics_" in k for k in keys)
-    assert any("confusion_matrix_" in k for k in keys)
-    assert any("roc_curve_" in k for k in keys)
+    # Check metrics
+    assert dr.test_clf_metrics is not None
+    assert dr.train_clf_metrics is not None
+    assert dr.test_clf_metrics.accuracy > 0
+    assert dr.test_clf_metrics.precision > 0
+    assert dr.test_clf_metrics.recall > 0
+    assert dr.test_clf_metrics.f1_score > 0
+    
+    # Check confusion matrix
+    assert dr.test_confusion_matrix is not None
+    assert isinstance(dr.test_confusion_matrix, pd.DataFrame)
+    
+    # Check ROC curves (since RF provides predict_proba)
+    assert dr.test_roc_curves is not None
+    assert len(dr.test_roc_curves) > 0
+    
+    # Check PR curves
+    assert dr.test_pr_curves is not None
+    assert len(dr.test_pr_curves) > 0
+    
+    # Check threshold analysis
+    assert dr.test_threshold_analysis is not None
+    
+    # Check SHAP
+    assert dr.train_shap is not None
+    assert dr.test_shap is not None

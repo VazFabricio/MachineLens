@@ -54,12 +54,10 @@ MachineLens requires:
 - Scikit-learn (>= |ScikitLearnMinVersion|)
 - NumPy (>= |NumPyMinVersion|)
 - Pandas (>= |PandasMinVersion|)
-- Matplotlib (>= |MatplotlibMinVersion|)
-- Seaborn (>= |SeabornMinVersion|)
 - Plotly (>= |PlotlyMinVersion|)
 - Statsmodels (>= |StatsmodelsMinVersion|)
+- SciPy (>= 1.11.0)
 - SHAP (>= |ShapMinVersion|)
-- LIME (>= |LimeMinVersion|)
 
 
 User installation
@@ -72,6 +70,39 @@ You can install MachineLens using pip::
 For a much faster installation, you can use `uv <https://github.com/astral-sh/uv>`_::
 
     uv pip install machinelens
+
+
+Quick Start
+-----------
+
+Here is a simple example of how to use MachineLens to diagnose a classification model:
+
+.. code-block:: python
+
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.datasets import make_classification
+    from sklearn.model_selection import train_test_split
+
+    from machinelens.core import ModelInterface
+    from machinelens.analyzer import ModelAnalyzer
+    from machinelens.plots import DiagnosticPlotter
+
+    # 1. Prepare data and train a model
+    X, y = make_classification(n_samples=1000, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+    model = RandomForestClassifier(random_state=42).fit(X_train, y_train)
+
+    # 2. Initialize the Model Interface
+    interface = ModelInterface(model, X_train, X_test, y_train, y_test)
+
+    # 3. Analyze the model
+    analyzer = ModelAnalyzer(interface)
+    results = analyzer.analyze()
+
+    # 4. Plot diagnostics
+    plotter = DiagnosticPlotter(results)
+    fig = plotter.plot_metrics()
+    fig.show()
 
 Development
 -----------

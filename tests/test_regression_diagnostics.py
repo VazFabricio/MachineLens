@@ -1,4 +1,4 @@
-"""Unit tests for the RegressionDiagnostics module."""
+"""Unit tests for the RegressionAnalyzer module."""
 
 import pytest
 import numpy as np
@@ -6,8 +6,9 @@ import pandas as pd
 from typing import Tuple
 
 from sklearn.base import BaseEstimator
-from core.model_interface import ModelInterface
-from diagnostics.regression_diagnostics import RegressionDiagnostics
+from machinelens.core.model_interface import ModelInterface
+from machinelens.core.data_classes import DiagnosticResults
+from machinelens.analyzer.regression_analyzer import RegressionAnalyzer
 
 
 @pytest.fixture
@@ -29,51 +30,38 @@ def regression_interface(
     )
 
 
-def test_regression_diagnostics_init(regression_interface: ModelInterface) -> None:
-    """Test initialization."""
-    diag = RegressionDiagnostics(regression_interface)
-    assert diag.model is not None
-    assert isinstance(diag.results, dict)
-
-
-def test_analyze_residual_outliers_happy_path(regression_interface: ModelInterface) -> None:
-    """Test outlier analysis functionality."""
-    diag = RegressionDiagnostics(regression_interface)
-    res = diag.analyze_residual_outliers(min_group_size=1, normality_check=False)
+def test_regression_analyzer_happy_path(regression_interface: ModelInterface) -> None:
+    """Test full analysis computing functionality."""
+    analyzer = RegressionAnalyzer(regression_interface)
     
-    if res is not None:
-        assert isinstance(res, pd.DataFrame)
-
-
-def test_run_all(regression_interface: ModelInterface) -> None:
-    """Test the run_all executor triggers all sub-processes."""
-    diag = RegressionDiagnostics(regression_interface)
-    diag.run_all()
+    dr = DiagnosticResults(
+        problem_type="regression",
+        model_name="LinearRegression",
+        algorithm_family="Linear Model (Regression/Logit/Ridge)",
+        feature_names=regression_interface.X_train.columns.tolist()
+    )
     
-    assert "residuals_data" in diag.results
-    rd = diag.results["residuals_data"]
-    assert "y_test" in rd
-    assert "residuals" in rd
-    assert "qq_osm" in rd
-
-
-def test_training_diagnostics_calculations(regression_interface: ModelInterface) -> None:
-    """Test computing training diagnostics directly."""
-    diag = RegressionDiagnostics(regression_interface)
-    diag.compute_training_residuals()
+    analyzer.analyze(dr)
     
-    assert "training_diagnostics" in diag.results
-    td = diag.results["training_diagnostics"]
-    assert "std_residuals" in td
+    # Check metrics
+    assert dr.test_metrics is not None
+    assert dr.train_metrics is not None
+    assert dr.test_metrics.rmse > 0
+    assert dr.test_metrics.mae > 0
     
-    diag.compute_leverage()
-    assert "leverage" in td
+    # Check residuals
+    assert dr.test_data is not None
+    assert len(dr.test_data.residuals) > 0
+    assert len(dr.test_data.std_residuals) > 0
     
-    diag.compute_cooks_distance()
-    assert "cooks_distance" in td
+    # Check QQ
+    assert dr.test_qq is not None
+    assert len(dr.test_qq.theoretical) > 0
     
-    diag.compute_vif()
-    assert "vif" in td
+    # Check Leverage / Cooks
+    assert dr.leverage is not None
+    assert dr.cooks_distance is not None
     
-    diag.compute_training_qq()
-    assert "qq_osm" in td
+    # Check SHAP
+    assert dr.train_shap is not None
+    assert dr.test_shap is not None

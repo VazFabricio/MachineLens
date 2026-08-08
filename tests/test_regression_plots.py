@@ -7,9 +7,10 @@ from typing import Tuple
 
 import plotly.graph_objects as go
 from sklearn.base import BaseEstimator
-from core.model_interface import ModelInterface
-from diagnostics.regression_diagnostics import RegressionDiagnostics
-from visualization.regression_plots import RegressionPlots
+from machinelens.core.model_interface import ModelInterface
+from machinelens.core.data_classes import DiagnosticResults
+from machinelens.analyzer.regression_analyzer import RegressionAnalyzer
+from machinelens.plots.plots import DiagnosticPlotter
 
 
 @pytest.fixture
@@ -32,54 +33,41 @@ def regression_interface(
 
 
 @pytest.fixture
-def diag_runner(regression_interface: ModelInterface) -> RegressionDiagnostics:
+def diag_runner(regression_interface: ModelInterface) -> DiagnosticResults:
     """Pre-run diagnostics."""
-    diag = RegressionDiagnostics(regression_interface)
-    diag.run_all()
-    return diag
+    analyzer = RegressionAnalyzer(regression_interface)
+    dr = DiagnosticResults(
+        problem_type="regression",
+        model_name="LinearRegression",
+        algorithm_family="Linear Model",
+        feature_names=regression_interface.X_train.columns.tolist()
+    )
+    analyzer.analyze(dr)
+    return dr
 
 
-def test_regression_plots_init(diag_runner: RegressionDiagnostics) -> None:
+def test_regression_plots_init(diag_runner: DiagnosticResults) -> None:
     """Test initialization."""
-    plots = RegressionPlots(diag_runner.results)
-    assert isinstance(plots.plots, dict)
+    plots = DiagnosticPlotter(diag_runner)
+    assert plots.results == diag_runner
 
 
-def test_plot_actual_vs_predicted_test(diag_runner: RegressionDiagnostics) -> None:
+def test_plot_actual_vs_predicted(diag_runner: DiagnosticResults) -> None:
     """Test Actual vs Predicted scatter plot generation."""
-    plots = RegressionPlots(diag_runner.results)
-    plots.plot_actual_vs_predicted_test()
-    
-    key = "actual_vs_predicted_test"
-    assert key in plots.plots
-    assert isinstance(plots.plots[key], go.Figure)
+    plots = DiagnosticPlotter(diag_runner)
+    fig = plots.plot_actual_vs_predicted()
+    assert isinstance(fig, go.Figure)
 
 
-def test_plot_residuals_vs_predicted_test(diag_runner: RegressionDiagnostics) -> None:
-    """Test Residuals vs Predicted dot plot generation."""
-    plots = RegressionPlots(diag_runner.results)
-    plots.plot_residuals_vs_predicted_test()
-    
-    key = "residuals_vs_predicted_test"
-    assert key in plots.plots
-    assert isinstance(plots.plots[key], go.Figure)
+def test_plot_residuals(diag_runner: DiagnosticResults) -> None:
+    """Test Residuals dot plot generation."""
+    plots = DiagnosticPlotter(diag_runner)
+    fig = plots.plot_residuals()
+    assert isinstance(fig, go.Figure)
 
 
-def test_plot_qq_test(diag_runner: RegressionDiagnostics) -> None:
+def test_plot_qq(diag_runner: DiagnosticResults) -> None:
     """Test Q-Q plot generation."""
-    plots = RegressionPlots(diag_runner.results)
-    plots.plot_qq_test()
-    
-    key = "qq_test"
-    assert key in plots.plots
-    assert isinstance(plots.plots[key], go.Figure)
-
-
-def test_run_all(diag_runner: RegressionDiagnostics) -> None:
-    """Test the run_all executor triggers all plot renderings."""
-    plots = RegressionPlots(diag_runner.results)
-    if hasattr(plots, 'run_all'):
-        plots.run_all()
-        # if the runner populates any, verify at least one is there
-        keys = list(plots.plots.keys())
-        assert len(keys) > 0
+    plots = DiagnosticPlotter(diag_runner)
+    fig = plots.plot_qq()
+    assert isinstance(fig, go.Figure)
