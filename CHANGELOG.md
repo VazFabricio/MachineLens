@@ -35,10 +35,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   computed diagnostic:
   - Classification: `plot_metrics`, `plot_confusion_matrix`, `plot_roc_curve`,
     `plot_pr_curve`, `plot_calibration_curve`, `plot_threshold_analysis`,
-    `plot_class_distribution`, `plot_probability_distribution`, `plot_misclassification_features`.
+    `plot_class_distribution`, `plot_probability_distribution`, `plot_misclassification_features`,
+    `plot_shap_summary`, `plot_shap_beeswarm`.
   - Regression: `plot_metrics`, `plot_residuals`, `plot_qq`,
     `plot_scale_location`, `plot_leverage`, `plot_residual_distribution`,
-    `plot_residuals_vs_actual`, `plot_posterior_predictive`, `plot_outliers`.
+    `plot_residuals_vs_actual`, `plot_posterior_predictive`, `plot_outliers`,
+    `plot_shap_summary`, `plot_shap_beeswarm`.
 
 #### Dashboard
 - Standalone HTML/JS/CSS dashboard (`dashboard/`) for interactively exploring

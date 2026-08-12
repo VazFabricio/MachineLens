@@ -105,7 +105,7 @@ Quick Start
     plotter = DiagnosticPlotter(results)
     plotter.plot_metrics().show()
     plotter.plot_roc_curve().show()
-    plotter.plot_confusion_matrix().show()
+    plotter.plot_shap_beeswarm().show()
 
 **Regression model**
 
@@ -129,7 +129,7 @@ Quick Start
     plotter = DiagnosticPlotter(results)
     plotter.plot_metrics().show()
     plotter.plot_residuals().show()
-    plotter.plot_qq().show()
+    plotter.plot_shap_beeswarm().show()
 
 
 Development

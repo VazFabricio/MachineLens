@@ -1992,6 +1992,158 @@ class DiagnosticPlotter:
     # Zero-friction Serialization Helpers
     # ------------------------------------------------------------------
 
+    # ------------------------------------------------------------------
+    # SHAP Plotting Methods
+    # ------------------------------------------------------------------
+
+    def plot_shap_summary(self, subset: str = "test") -> go.Figure:
+        """Plot the SHAP summary (global feature importance) as a bar chart.
+
+        Parameters
+        ----------
+        subset : str, default="test"
+            The subset to evaluate.
+
+        Returns
+        -------
+        go.Figure
+            The Plotly figure.
+        """
+        shap_data = getattr(self.results, f"{subset}_shap", None)
+        if shap_data is None:
+            raise ValueError(f"No SHAP data found for subset '{subset}'.")
+
+        mean_abs_shap = shap_data.mean_abs_shap
+        feature_names = shap_data.feature_names
+
+        sorted_indices = np.argsort(mean_abs_shap)
+        top_indices = sorted_indices[-10:]
+
+        x = mean_abs_shap[top_indices]
+        y = [feature_names[i] for i in top_indices]
+
+        fig = go.Figure(
+            data=go.Bar(
+                x=x,
+                y=y,
+                orientation='h',
+                marker=dict(color=_COLOR_BLUE),
+                hovertemplate="<b>%{y}</b><br>Mean |SHAP|: %{x:.4f}<extra></extra>"
+            )
+        )
+
+        self._apply_theme(
+            fig,
+            title=f"Global Feature Importance (SHAP) ({subset.title()})",
+            xaxis_title="Mean |SHAP value| (average impact on model output)",
+            yaxis_title=""
+        )
+        fig.update_layout(showlegend=False)
+        return fig
+
+    def plot_shap_beeswarm(self, subset: str = "test") -> go.Figure:
+        """Plot the SHAP beeswarm chart.
+
+        Parameters
+        ----------
+        subset : str, default="test"
+            The subset to evaluate.
+
+        Returns
+        -------
+        go.Figure
+            The Plotly figure.
+        """
+        shap_data = getattr(self.results, f"{subset}_shap", None)
+        if shap_data is None:
+            raise ValueError(f"No SHAP data found for subset '{subset}'.")
+
+        mean_abs_shap = shap_data.mean_abs_shap
+        feature_names = shap_data.feature_names
+        shap_values = shap_data.shap_values
+        feature_values = (
+            shap_data.feature_values if shap_data.feature_values is not None else shap_values
+        )
+
+        sorted_indices = np.argsort(mean_abs_shap)[-10:]
+
+        fig = go.Figure()
+
+        n_samples = shap_values.shape[0]
+        np.random.seed(42)
+        jitter = (np.random.rand(n_samples) - 0.5) * 0.35
+
+        tickvals = []
+        ticktext = []
+
+        for y_pos, f_idx in enumerate(sorted_indices):
+            f_name = feature_names[f_idx]
+            sv = shap_values[:, f_idx]
+            fv = feature_values[:, f_idx]
+
+            f_min = np.min(fv)
+            f_max = np.max(fv)
+            f_range = f_max - f_min if f_max > f_min else 1.0
+
+            cv = (fv - f_min) / f_range
+
+            y_vals = y_pos + jitter
+
+            marker = dict(
+                size=5,
+                color=cv,
+                colorscale=[[0, '#008bfb'], [1, '#ff0052']],
+                cmin=0,
+                cmax=1,
+                line=dict(width=0),
+                showscale=(y_pos == 0),
+            )
+
+            if y_pos == 0:
+                marker['colorbar'] = dict(
+                    title="Feature value",
+                    tickvals=[0, 1],
+                    ticktext=["Low", "High"],
+                    thickness=10,
+                    len=0.5,
+                    outlinewidth=0,
+                )
+
+            hover_text = [
+                f"Row {shap_data.eval_index[i] if shap_data.eval_index else i}<br>"
+                f"{f_name}: SHAP={sv[i]:.4f}, Val={fv[i]:.4f}"
+                for i in range(n_samples)
+            ]
+
+            fig.add_trace(go.Scatter(
+                x=sv,
+                y=y_vals,
+                mode='markers',
+                marker=marker,
+                text=hover_text,
+                hovertemplate="%{text}<extra></extra>",
+                showlegend=False
+            ))
+
+            tickvals.append(y_pos)
+            ticktext.append(f_name)
+
+        self._apply_theme(
+            fig,
+            title=f"SHAP Beeswarm Plot ({subset.title()})",
+            xaxis_title="SHAP value (impact on model output)",
+            yaxis_title=""
+        )
+
+        fig.update_yaxes(
+            tickvals=tickvals,
+            ticktext=ticktext,
+            showgrid=False,
+            zeroline=False
+        )
+
+        return fig
+
     def to_json_bundle(self, subset: str = "test") -> str:
         """Serialize a pre-packaged bundle of all available diagnostic charts.
 
