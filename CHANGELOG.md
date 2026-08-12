@@ -34,11 +34,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `DiagnosticPlotter` — Plotly-based plotter with dedicated methods for every
   computed diagnostic:
   - Classification: `plot_metrics`, `plot_confusion_matrix`, `plot_roc_curve`,
-    `plot_feature_importance`, `plot_learning_curve`, `plot_shap_beeswarm`,
-    `plot_calibration_curve`, `plot_cv_scores`.
-  - Regression: `plot_metrics`, `plot_residuals`, `plot_qq_plot`,
-    `plot_feature_importance`, `plot_partial_dependence`, `plot_learning_curve`,
-    `plot_shap_beeswarm`, `plot_cv_scores`.
+    `plot_pr_curve`, `plot_calibration_curve`, `plot_threshold_analysis`,
+    `plot_class_distribution`, `plot_probability_distribution`, `plot_misclassification_features`.
+  - Regression: `plot_metrics`, `plot_residuals`, `plot_qq`,
+    `plot_scale_location`, `plot_leverage`, `plot_residual_distribution`,
+    `plot_residuals_vs_actual`, `plot_posterior_predictive`, `plot_outliers`.
 
 #### Dashboard
 - Standalone HTML/JS/CSS dashboard (`dashboard/`) for interactively exploring
