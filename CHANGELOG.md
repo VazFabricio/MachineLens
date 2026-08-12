@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.1] — 2026-08-12
+
+### Added
+- `plot_shap_summary` and `plot_shap_beeswarm` methods directly in `DiagnosticPlotter` for Python visualization without requiring the web dashboard.
+
+### Fixed
+- Fixed documentation referencing missing plotting methods in `README.rst` and `CHANGELOG.md`.
+
 ## [0.1.0] — 2026-08-12
 
 ### Added
@@ -34,11 +42,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `DiagnosticPlotter` — Plotly-based plotter with dedicated methods for every
   computed diagnostic:
   - Classification: `plot_metrics`, `plot_confusion_matrix`, `plot_roc_curve`,
-    `plot_feature_importance`, `plot_learning_curve`, `plot_shap_beeswarm`,
-    `plot_calibration_curve`, `plot_cv_scores`.
-  - Regression: `plot_metrics`, `plot_residuals`, `plot_qq_plot`,
-    `plot_feature_importance`, `plot_partial_dependence`, `plot_learning_curve`,
-    `plot_shap_beeswarm`, `plot_cv_scores`.
+    `plot_pr_curve`, `plot_calibration_curve`, `plot_threshold_analysis`,
+    `plot_class_distribution`, `plot_probability_distribution`, `plot_misclassification_features`.
+  - Regression: `plot_metrics`, `plot_residuals`, `plot_qq`,
+    `plot_scale_location`, `plot_leverage`, `plot_residual_distribution`,
+    `plot_residuals_vs_actual`, `plot_posterior_predictive`, `plot_outliers`.
 
 #### Dashboard
 - Standalone HTML/JS/CSS dashboard (`dashboard/`) for interactively exploring
@@ -69,4 +77,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - shap ≥ 0.49.1
 - statsmodels ≥ 0.14.6
 
+[0.1.1]: https://github.com/VazFabricio/MachineLens/releases/tag/v0.1.1
 [0.1.0]: https://github.com/VazFabricio/MachineLens/releases/tag/v0.1.0

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "machinelens"
-version = "0.1.0"
+version = "0.1.1"
 description = "Library for ML/AI explainability"
 authors = [{ name="Fabrício Vaz", email="" }]
 readme = "README.rst"
