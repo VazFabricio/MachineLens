@@ -36,3 +36,9 @@ exclude_patterns: List[str] = []
 
 html_theme = "pydata_sphinx_theme"
 html_static_path: List[str] = ["_static"]
+html_logo = "../images/MachineLensLogo.jpg"
+html_theme_options = {
+    "logo": {
+        "text": "MachineLens",
+    }
+}

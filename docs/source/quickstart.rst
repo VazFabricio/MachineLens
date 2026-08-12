@@ -90,3 +90,26 @@ MachineLens automatically detects the problem type. Here is an example for a reg
     reg_plotter = DiagnosticPlotter(reg_results)
     fig = reg_plotter.plot_metrics()
     fig.show()
+
+4. Exporting to the Web Dashboard
+---------------------------------
+
+MachineLens includes a standalone glassmorphic Web Dashboard that allows you to drag, reorder, resize, and inspect pre-computed plot bundles in real-time.
+
+To display your model's diagnostic results on the web dashboard, save the bundle:
+
+.. code-block:: python
+
+    plotter = DiagnosticPlotter(results)
+    plotter.save_dashboard_bundle("dashboard/active_bundle.json")
+
+**How to Run the Web Dashboard:**
+
+1. **Start the local HTTP server** (in your terminal from the project root):
+
+.. code-block:: bash
+
+    python -m http.server 8000
+
+2. **Open your browser**:
+   Navigate to http://localhost:8000/dashboard/
