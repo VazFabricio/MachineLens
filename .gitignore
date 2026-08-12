@@ -23,3 +23,9 @@ src/start.ipynb
 
 .coverage
 htmlcov/
+
+# Sphinx build output (generated — do not commit)
+docs/build/
+
+# Dashboard runtime artefacts (generated — do not commit)
+dashboard/active_bundle.json

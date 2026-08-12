@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "machinelens"
 version = "0.1.0"
 description = "Library for ML/AI explainability"
-authors = [{ name="Fabrício Vaz" }]
+authors = [{ name="Fabrício Vaz", email="" }]
 readme = "README.rst"
 license = { file = "LICENSE" }
 requires-python = ">=3.11"
@@ -16,6 +16,7 @@ classifiers = [
     "License :: OSI Approved :: BSD License",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 dependencies = [
@@ -29,10 +30,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/vazfabricio/machinelens"
-Documentation = "https://github.com/vazfabricio/machinelens#documentation"
-Repository = "https://github.com/vazfabricio/machinelens"
-"Issue Tracker" = "https://github.com/vazfabricio/machinelens/issues"
+Homepage = "https://github.com/VazFabricio/MachineLens"
+Documentation = "https://vazfabricio.github.io/MachineLens/"
+Repository = "https://github.com/VazFabricio/MachineLens"
+"Issue Tracker" = "https://github.com/VazFabricio/MachineLens/issues"
 
 [dependency-groups]
 dev = [
@@ -44,6 +45,10 @@ dev = [
     "pytest>=8.4.2",
     "pytest-cov>=6.0.0",
     "ruff>=0.3.2",
+    "sphinx>=9.0.4",
+    "numpydoc>=1.10.0",
+    "pydata-sphinx-theme>=0.20.0",
+    "sphinx-autobuild>=2025.8.25",
 ]
 
 [tool.mypy]
