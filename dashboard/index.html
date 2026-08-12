@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MachineLens — Model Diagnostics Dashboard</title>
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css?v=1.0.7">
+    <!-- Load Plotly.js CDN -->
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js" charset="utf-8"></script>
+</head>
+
+<body>
+
+    <div class="app-container">
+
+        <!-- Top Navigation Bar (Streamlined) -->
+        <header class="top-navbar">
+            <div class="brand">
+                <div class="brand-icon">
+                    <img src="assets/logo.jpg" alt="MachineLens Logo">
+                </div>
+            </div>
+
+            <!-- Active Status Monitor -->
+            <div class="nav-controls">
+                <div class="status-badge" id="status-badge">
+                    Active: None
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard View Panel -->
+        <main class="main-content">
+
+            <!-- TEST SET SECTION -->
+            <section class="grid-section" id="test-section">
+                <div class="section-divider">
+                    <h2>Test Set Diagnostics <span class="divider-subtitle"></span></h2>
+                    <p class="section-description">Model generalization performance, error distributions, and
+                        calibration curves analyzed on unseen test samples.</p>
+                </div>
+                <div class="dashboard-grid" id="test-grid">
+                    <!-- Plotly cards loaded dynamically here -->
+                </div>
+                <!-- Inline Test Table Card -->
+                <div class="table-card" id="test-table-card" style="display: none;">
+                    <div class="table-card-header">
+                        <span class="table-card-title">Test Dataset Explorer</span>
+                    </div>
+                    <div class="table-viewport">
+                        <table class="dataset-table" id="test-dataset-table"></table>
+                    </div>
+                    <div class="table-footer" id="test-table-footer"></div>
+                </div>
+            </section>
+
+            <!-- TRAINING SET SECTION -->
+            <section class="grid-section" id="train-section">
+                <div class="section-divider">
+                    <h2>Training Set Diagnostics <span class="divider-subtitle"></span></h2>
+                    <p class="section-description">Evaluation diagnostics on the training subset, useful for monitoring
+                        convergence and detecting overfitting.</p>
+                </div>
+                <div class="dashboard-grid" id="train-grid">
+                    <!-- Plotly cards loaded dynamically here -->
+                </div>
+                <!-- Inline Train Table Card -->
+                <div class="table-card" id="train-table-card" style="display: none;">
+                    <div class="table-card-header">
+                        <span class="table-card-title">Training Dataset Explorer</span>
+                    </div>
+                    <div class="table-viewport">
+                        <table class="dataset-table" id="train-dataset-table"></table>
+                    </div>
+                    <div class="table-footer" id="train-table-footer"></div>
+                </div>
+            </section>
+
+            <!-- Unified Empty State Placeholder -->
+            <div class="empty-state" id="empty-state" style="display: none;">
+                <div class="empty-state-icon">📊</div>
+                <div class="empty-state-text">
+                    <h3>No Diagnostic Plots Loaded</h3>
+                    <p>Run `plotter.save_dashboard_bundle()` in your Python code to generate the diagnostics bundle and
+                        refresh the page.</p>
+                </div>
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- Toast Notifications Toasting shell -->
+    <div class="toast" id="toast">
+        <span class="toast-icon">✓</span>
+        <span id="toast-message" class="toast-message">Operation successful!</span>
+    </div>
+
+    <!-- Script Application Bootstraper -->
+    <script src="app.js?v=1.0.7"></script>
+</body>
+
+</html>

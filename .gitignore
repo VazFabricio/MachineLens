@@ -5,6 +5,27 @@ build/
 dist/
 wheels/
 *.egg-info
-
-# Virtual environments
+planofstructure.txt
 .venv
+.env
+*.log
+*.egg-info/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+src/start.ipynb
+
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+.coverage
+htmlcov/
+
+# Sphinx build output (generated — do not commit)
+docs/build/
+
+# Dashboard runtime artefacts (generated — do not commit)
+dashboard/active_bundle.json

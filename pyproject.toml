@@ -1,43 +1,94 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "machinelens"
 version = "0.1.0"
 description = "Library for ML/AI explainability"
-authors = [{ name="Fabrício Vaz" }]
-readme = "README.md"
+authors = [{ name="Fabrício Vaz", email="" }]
+readme = "README.rst"
 license = { file = "LICENSE" }
-requires-python = ">=3.10"
+requires-python = ">=3.11"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 dependencies = [
-    "jinja2>=3.1.6",
-    "lime>=0.2.0.1",
-    "matplotlib>=3.10.7",
     "numpy>=2.2.6",
     "pandas>=2.3.3",
     "plotly>=6.3.1",
     "scikit-learn>=1.7.2",
-    "seaborn>=0.13.2",
+    "scipy>=1.11.0",
     "shap>=0.49.1",
+    "statsmodels>=0.14.6",
 ]
 
-[tool.black]
-line-length = 88
-target-version = ['py310']
-
-[tool.isort]
-profile = "black"
-
-[tool.mypy]
-python_version = "3.10"
-check_untyped_defs = true
-disallow_untyped_defs = false  # desativa exigência estrita de tipos para facilitar
-ignore_missing_imports = true   # ignora imports de bibliotecas sem stubs
-
+[project.urls]
+Homepage = "https://github.com/VazFabricio/MachineLens"
+Documentation = "https://vazfabricio.github.io/MachineLens/"
+Repository = "https://github.com/VazFabricio/MachineLens"
+"Issue Tracker" = "https://github.com/VazFabricio/MachineLens/issues"
 
 [dependency-groups]
 dev = [
-    "black>=25.9.0",
-    "flake8>=7.3.0",
-    "isort>=7.0.0",
+    "ipykernel>=7.2.0",
+    "nbformat>=5.10.4",
+    "kaleido>=1.1.0",
     "mypy>=1.18.2",
     "pre-commit>=4.3.0",
     "pytest>=8.4.2",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.3.2",
+    "sphinx>=9.0.4",
+    "numpydoc>=1.10.0",
+    "pydata-sphinx-theme>=0.20.0",
+    "sphinx-autobuild>=2025.8.25",
 ]
+
+[tool.mypy]
+python_version = "3.11"
+check_untyped_defs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "build",
+    "dist",
+    "__init__.py",
+    "tests",
+    "*/tests/*",
+    "*/__init__.py",
+    "src/**/*.egg-info"
+]
+
+[tool.ruff.lint]
+# E (Pycodestyle Error), F (Pyflakes), W (Pycodestyle Warning), I (Isort), D (Pydocstyle), B (Bugbear)
+select = ["E", "F", "W", "I", "D", "B"]
+# D100: Missing docstring in public module
+# D104: Missing docstring in public package
+ignore = ["D100", "D104"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.pytest.ini_options]
+pythonpath = [
+    "src"
+]
+addopts = "--cov=src --cov-report=term-missing"

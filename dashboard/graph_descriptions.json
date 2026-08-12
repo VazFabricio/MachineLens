@@ -1,0 +1,129 @@
+{
+  "act_vs_pred": {
+    "title": "Actual vs. Predicted",
+    "description": "A scatter plot comparing ground truth values against model predictions. A dashed 45-degree line is used to represent a perfect prediction.",
+    "insights": "Points hugging the diagonal line mean high accuracy. If points drift away from the line at higher values, the model struggles with larger numbers.",
+    "example": "If a house sold for $500k and the model predicted $480k, this plot visualizes that $20k gap. Perfect predictions sit exactly on the line."
+  },
+  "res_dist": {
+    "title": "Residuals Distribution",
+    "description": "A histogram showing the distribution of the model's errors (Actual - Predicted) to see if they follow a normal, bell-shaped curve.",
+    "insights": "A balanced, centered curve means errors are random. A skewed curve means the model is systematically overpredicting or underpredicting.",
+    "example": "If the bell curve leans heavily to the left, the model systematically predicts house prices higher than they actually are."
+  },
+  "res_vs_pred": {
+    "title": "Residuals vs. Predicted",
+    "description": "Plots the errors against the predicted values to check if the error magnitude changes as predictions get larger.",
+    "insights": "A random scatter around the zero-line is ideal. A funnel shape (fan-out) means the model loses accuracy on larger predictions (heteroscedasticity).",
+    "example": "Reveals if the model's margin of error is $10k for cheap apartments, but blows up to $200k for luxury mansions."
+  },
+  "res_vs_act": {
+    "title": "Residuals vs. Actual",
+    "description": "Plots the errors directly against the true target values to see how the model behaves across the actual domain of the data.",
+    "insights": "Helps spot specific ranges in the real-world data where the model completely falls apart.",
+    "example": "Shows if the model is highly accurate for middle-class homes but consistently fails for ultra-rare, high-end estates."
+  },
+  "qq": {
+    "title": "Normal Q-Q Plot",
+    "description": "A diagnostic plot that compares the distribution of the model's errors to a theoretical normal distribution.",
+    "insights": "Points tracking the straight reference line mean errors are normally distributed. Tails drifting away indicate extreme, unexpected outlier errors.",
+    "example": "If the dots curve sharply at the top right, the model is making rare, massive miscalculations on a few specific houses."
+  },
+  "scale_loc": {
+    "title": "Scale-Location Plot",
+    "description": "Plots the square root of absolute errors against predictions. It makes it easier to spot if error variance is spreading out.",
+    "insights": "A flat, horizontal trend line means the prediction uncertainty is equal across the board (homoscedasticity).",
+    "example": "A flat line confirms you can trust the model's confidence just as much for a $100k house as for a $1M house."
+  },
+  "post_pred": {
+    "title": "Posterior Predictive Density",
+    "description": "Overlays the distribution shape of the actual target values with the distribution shape of the model's predictions.",
+    "insights": "Shows if the model is capturing the real-world demographics of the data, including multiple peaks (bimodal data).",
+    "example": "If the real housing market has a peak for suburban homes and a peak for city condos, this shows if the model captured both peaks or just averaged them out."
+  },
+  "leverage": {
+    "title": "Residuals vs. Leverage",
+    "description": "Identifies extreme data points that have a disproportionate, pulling effect on the model's overall logic.",
+    "insights": "High leverage points in the top/bottom right corners (beyond Cook's distance) are outliers skewing the entire model.",
+    "example": "Flags a single $50M castle in a dataset of normal homes that is artificially pulling the model's pricing logic upward."
+  },
+
+  "outliers": {
+    "title": "Outlier Feature Analysis",
+    "description": "Plots the standardized residuals against the specific feature that has the strongest relationship with the model's largest errors.",
+    "insights": "Highlights the exact variable whose extreme values or specific ranges are causing the model to generate massive errors, exposing critical blind spots.",
+    "example": "Reveals that the houses the model priced worst were consistently those built before 1950, showing that 'Year Built' is the root cause of these extreme errors."
+  },
+  "metrics": {
+    "title": "Performance Metrics Summary",
+    "description": "A consolidated table of the model's vital signs (R², RMSE, Accuracy, F1-Score) across training and testing data.",
+    "insights": "The ultimate quick-glance check for model health and overfitting. Training and testing scores should be relatively close.",
+    "example": "An R² of 0.95 on training data but 0.60 on test data immediately flags that the model memorized the data rather than learning it."
+  },
+  "cm": {
+    "title": "Confusion Matrix",
+    "description": "A grid showing exactly where a classification model guessed right (True Positives/Negatives) and where it got confused.",
+    "insights": "Breaks down total accuracy into specific mistakes: false alarms vs. missed detections.",
+    "example": "Shows out of 100 actual frauds, the model caught 85 (True Positives) but let 15 slip through (False Negatives)."
+  },
+  "class_dist": {
+    "title": "Class Distribution",
+    "description": "A bar chart comparing the real-world proportion of classes against what the model is predicting.",
+    "insights": "Checks if the model is taking the lazy route by just guessing the majority class all the time.",
+    "example": "If frauds are only 1% of the real data, but the model is predicting 10% of transactions as fraud, it is far too aggressive."
+  },
+  "prob_dist": {
+    "title": "Probability Confidence Distribution",
+    "description": "Shows how confident the model was when making predictions, separated by the true class of the data.",
+    "insights": "A good model pushes predictions to the extremes (0% or 100%). A confused model has a lump of predictions around 50%.",
+    "example": "Ideally, valid transactions are clustered at 5% fraud probability, and actual frauds are clustered near 95%, with very few in the middle."
+  },
+  "roc": {
+    "title": "Receiver Operating Characteristic (ROC)",
+    "description": "Plots the trade-off between catching true positives and triggering false alarms across different strictness thresholds.",
+    "insights": "The higher the curve hugs the top left corner (high AUC), the better the model is at separating the classes.",
+    "example": "An AUC of 0.95 means the model is excellent at ranking a fraudulent transaction higher on the suspicion list than a valid one."
+  },
+  "pr": {
+    "title": "Precision-Recall Curve",
+    "description": "Evaluates the trade-off between catching all positive cases (Recall) and ensuring every positive guess is correct (Precision).",
+    "insights": "The gold standard for highly imbalanced data (where one class is rare). High curves indicate robust performance.",
+    "example": "If catching every fraud means freezing thousands of innocent accounts (low precision), this curve helps find the sweet spot to balance the business impact."
+  },
+  "misclass": {
+    "title": "Misclassification Feature Analysis",
+    "description": "Analyzes the data points the model got wrong to find common traits among the errors.",
+    "insights": "Identifies the specific profiles or customer segments where the classification logic breaks down.",
+    "example": "Reveals that valid transactions wrongly blocked as fraud usually happen when customers are traveling abroad."
+  },
+  "calibration": {
+    "title": "Calibration Curve (Reliability)",
+    "description": "Checks if the predicted probabilities match the actual real-world frequencies. If the model says 80% chance of rain, it should actually rain 8 out of 10 times.",
+    "insights": "A curve hugging the diagonal means the model's confidence scores are trustworthy. Deviations mean it is overconfident or underconfident.",
+    "example": "Shows that when the model predicts a 90% chance of fraud, in reality, only 50% of those transactions are fraudulent (overconfidence)."
+  },
+  "threshold": {
+    "title": "Decision Threshold Analysis",
+    "description": "Displays how Precision, Recall, and F1-Score change as you adjust the cut-off probability (threshold) for making a positive prediction.",
+    "insights": "Helps you manually find the perfect cut-off point to balance false alarms and missed detections according to your business needs.",
+    "example": "Instead of the default 50% cut-off, this chart shows that dropping the threshold to 30% catches double the frauds with only a tiny drop in precision."
+  },
+  "shap_summary": {
+    "title": "Global Feature Importance (SHAP)",
+    "description": "Shows the average impact of each feature on the model's predictions across the entire dataset.",
+    "insights": "Features at the top are the primary drivers of the model's logic. This reveals what the model actually cares about.",
+    "example": "If 'Age' has the highest bar, it means Age causes the largest swings in the model's final decision compared to any other factor."
+  },
+  "shap_beeswarm": {
+    "title": "SHAP Beeswarm Plot",
+    "description": "A beeswarm/strip plot where each dot is one sample. The x-position shows the SHAP value (impact direction), and the color shows the feature value (red=high, blue=low).",
+    "insights": "Combines importance AND direction in one view. A wide horizontal spread means high variance in that feature's impact. Color gradients reveal if high feature values push predictions up or down.",
+    "example": "If 'Age' dots fan right and are red, older patients strongly push the prediction toward positive. Blue dots on the left mean young patients lower the risk prediction."
+  },
+  "shap_waterfall": {
+    "title": "Local Explanation (Waterfall)",
+    "description": "Breaks down exactly how the model arrived at its prediction for a specific, individual data point selected in the table.",
+    "insights": "Starting from the average baseline, each bar shows how a specific feature value pushed the prediction up (red) or down (blue).",
+    "example": "Shows that while the baseline price was $300k, the house being built in 1990 added $50k, but having only 1 bathroom subtracted $30k, resulting in a $320k prediction."
+  }
+}
